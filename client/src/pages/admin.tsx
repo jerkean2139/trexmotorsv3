@@ -194,6 +194,7 @@ export default function Admin() {
 
   // Filter vehicles based on search and filters
   const vehicles = (vehiclesData as { vehicles?: Vehicle[] })?.vehicles || [];
+  console.log("vehicles:", vehicles);
   const filteredVehicles = vehicles.filter((vehicle: Vehicle) => {
     const matchesSearch = searchQuery === "" || 
       `${vehicle.make} ${vehicle.model} ${vehicle.vin} ${vehicle.stockNumber}`.toLowerCase().includes(searchQuery.toLowerCase());

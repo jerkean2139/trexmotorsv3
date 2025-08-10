@@ -76,7 +76,7 @@ export default function Home() {
           if (import.meta.env.VITE_VERCEL_BYPASS_TOKEN) {
             headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN;
           }
-          const response = await fetch('https://admin-backend-lyart.vercel.app/api/public/vehicles/featured', { headers });
+          const response = await fetch('https://admin-backend-lyart.vercel.app/api/public/featured', { headers });
           if (response.ok) {
             console.log("Using live featured data from admin backend");
             return await response.json();
@@ -88,7 +88,7 @@ export default function Home() {
       }
       
       try {
-        const response = await fetch("/api/vehicles/featured");
+        const response = await fetch("/api/featured");
         if (!response.ok) throw new Error("Failed to fetch featured vehicles");
         return response.json();
       } catch (error) {
