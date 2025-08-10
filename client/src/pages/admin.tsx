@@ -85,6 +85,16 @@ export default function Admin() {
   const { data: vehiclesData, isLoading } = useQuery({
     queryKey: ["/api/auth/vehicles"],
     enabled: isAuthenticated || authData?.isAuthenticated,
+    queryFn: async () => {
+      const baseUrl = isDevelopment ? '' : 'https://admin-backend-lyart.vercel.app';
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (!isDevelopment) {
+        headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN || '';
+      }
+      const response = await fetch(`${baseUrl}/api/auth/vehicles`, { headers });
+      if (!response.ok) throw new Error('Failed to fetch vehicles');
+      return response.json();
+    }
   });
 
   // Login mutation
