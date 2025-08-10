@@ -16,32 +16,39 @@ function isValidSession(cookie: string): boolean {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with credentials - wildcard pattern for all Vercel workspace deployments
-  const origin = req.headers.origin;
-  const isAllowedOrigin = origin && (
-    origin === "https://workspace-nu-ecru.vercel.app" ||
-    origin.includes("replit.dev") ||
-    origin.includes("localhost") ||
-    origin.includes("127.0.0.1")
-  );
-  if (isAllowedOrigin) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-  }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-vercel-protection-bypass');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  const origin = req.headers.origin || "";
+  const allowedOrigins = [
+    "https://workspace-nu-ecru.vercel.app",
+    // For replit, localhost, 127.0.0.1 do simple regex matches:
+    /^https?:\/\/([a-zA-Z0-9-]+\.)?replit\.dev$/,
+    /^https?:\/\/localhost(:\d+)?$/,
+    /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+  ];
 
-  if (req.method === 'OPTIONS') {
+  const isAllowedOrigin = allowedOrigins.some(o =>
+    o instanceof RegExp ? o.test(origin) : o === origin
+  );
+
+  if (!isAllowedOrigin) {
+    return res.status(403).json({ message: "Origin not allowed" });
+  }
+
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-vercel-protection-bypass");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
     // Check for session cookie
-    const cookies = req.headers.cookie?.split(';').map(c => c.trim()) || [];
-    const sessionCookie = cookies.find(c => c.startsWith('admin-session='));
+    const cookies = req.headers.cookie?.split(';').map((c: string) => c.trim()) || [];
+    const sessionCookie = cookies.find((c: string) => c.startsWith('admin-session='));
     
     if (sessionCookie) {
       const sessionValue = sessionCookie.split('=')[1];
