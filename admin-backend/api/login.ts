@@ -5,7 +5,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin || "";
   const allowedOrigins = [
     "https://workspace-nu-ecru.vercel.app",
-    // For replit, localhost, 127.0.0.1 do simple regex matches:
     /^https?:\/\/([a-zA-Z0-9-]+\.)?replit\.dev$/,
     /^https?:\/\/localhost(:\d+)?$/,
     /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
