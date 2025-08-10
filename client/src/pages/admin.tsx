@@ -185,7 +185,8 @@ export default function Admin() {
   };
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+  logoutMutation.mutate();
+  window.location.href = "/";
   };
 
   const handleDeleteVehicle = (id: string) => {
