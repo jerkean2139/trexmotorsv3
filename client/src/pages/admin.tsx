@@ -168,7 +168,7 @@ export default function Admin() {
   // Delete vehicle mutation
   const deleteVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `/api/auth/vehicles/${id}`);
+      return apiRequest("DELETE", `https://admin-backend-lyart.vercel.app/api/auth/vehicles/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
