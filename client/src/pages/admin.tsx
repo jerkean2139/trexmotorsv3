@@ -83,7 +83,7 @@ export default function Admin() {
 
   // Get vehicles for admin
   const { data: vehiclesData, isLoading } = useQuery({
-    queryKey: ["/api/vehicles"],
+    queryKey: ["/api/auth/vehicles"],
     enabled: isAuthenticated || authData?.isAuthenticated,
   });
 
@@ -120,7 +120,7 @@ export default function Admin() {
       setIsAuthenticated(true);
       toast({ title: "Success", description: "Logged in successfully" });
       await refetchAuth();
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/vehicles"] });
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -158,11 +158,11 @@ export default function Admin() {
   // Delete vehicle mutation
   const deleteVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `/api/vehicles/${id}`);
+      return apiRequest("DELETE", `/api/auth/vehicles/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/vehicles"] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete vehicle", variant: "destructive" });
