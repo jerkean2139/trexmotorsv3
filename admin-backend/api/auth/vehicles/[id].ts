@@ -107,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       res.json(updatedVehicle);
     } else {
-      res.status(405).json({ message: "Method not allowed" });
+      res.status(405).json({ message: "Method not allowed, but it should be allowed >:C" });
     }
   } catch (error) {
     console.error("Error handling vehicles request:", error);

@@ -81,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const vehicleList = await db.select().from(vehicles);
       res.json({ vehicles: vehicleList });
     } else {
-      res.status(405).json({ message: "Method not allowed" });
+      res.status(405).json({ message: "Method not allowed, and we shouldn't be here >:C" });
     }
   } catch (error) {
     console.error("Error handling vehicles request:", error);
