@@ -96,6 +96,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ message: "Vehicle ID required in URL" });
       }
       const updateData = req.body;
+      // Serialize arrays to JSON for DB columns
+      if (Array.isArray(updateData.features)) {
+        updateData.features = JSON.stringify(updateData.features);
+      }
+      if (Array.isArray(updateData.images)) {
+        updateData.images = JSON.stringify(updateData.images);
+      }
       // Update the vehicle with the given id
       const [updatedVehicle] = await db
         .update(vehicles)
