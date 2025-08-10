@@ -48,9 +48,9 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
   const vehicleMutation = useMutation({
     mutationFn: async (data: InsertVehicle) => {
       if (vehicle) {
-        return apiRequest("PUT", `/api/auth/vehicles/${vehicle.id}`, data);
+        return apiRequest("PUT", `https://admin-backend-lyart.vercel.app/api/auth/vehicles/${vehicle.id}`, data);
       } else {
-        return apiRequest("POST", "/api/auth/vehicles", data);
+        return apiRequest("POST", "https://admin-backend-lyart.vercel.app/api/auth/vehicles", data);
       }
     },
     onSuccess: () => {
