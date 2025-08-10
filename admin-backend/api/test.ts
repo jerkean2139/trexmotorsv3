@@ -4,14 +4,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with credentials - wildcard pattern for all Vercel workspace deployments
   const origin = req.headers.origin;
   const isAllowedOrigin = origin && (
-    origin.includes('workspace-') && (origin.includes('jeremys-projects-0f68a4ab.vercel.app') ||
-    origin.includes('nu-ecru.vercel.app')) ||
-    origin.includes('replit.dev') ||
-    origin.includes('localhost') ||
-    origin.includes('127.0.0.1') ||
-    origin.includes('trexmotorsrichmond.netlify.app')
+    origin === "https://workspace-nu-ecru.vercel.app" ||
+    origin.includes("replit.dev") ||
+    origin.includes("localhost") ||
+    origin.includes("127.0.0.1")
   );
-  
   if (isAllowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
