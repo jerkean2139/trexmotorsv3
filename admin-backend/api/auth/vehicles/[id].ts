@@ -68,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-vercel-protection-bypass");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
@@ -77,9 +77,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    if (req.method === "GET") {
-      const vehicleList = await db.select().from(vehicles);
-      res.json({ vehicles: vehicleList });
+    // if (req.method === "GET") {
+    //   const vehicleList = await db.select().from(vehicles);
+    //   res.json({ vehicles: vehicleList });
+    // } else 
+    if (req.method === "POST") {
+      const vehicleData = req.body;
+      const [vehicle] = await db
+        .insert(vehicles)
+        .values(vehicleData)
+        .returning();
+      res.json(vehicle);
+    } else if (req.method === "PUT") {
+      // Expect vehicle id in the URL path: /api/auth/vehicles/:id
+      const idMatch = req.url?.match(/\/api\/auth\/vehicles\/([a-zA-Z0-9-]+)/);
+      const vehicleId = idMatch?.[1];
+      if (!vehicleId) {
+        return res.status(400).json({ message: "Vehicle ID required in URL" });
+      }
+      const updateData = req.body;
+      // Update the vehicle with the given id
+      const [updatedVehicle] = await db
+        .update(vehicles)
+        .set(updateData)
+        .where(eq(vehicles.id, vehicleId))
+        .returning();
+      if (!updatedVehicle) {
+        return res.status(404).json({ message: "Vehicle not found" });
+      }
+      res.json(updatedVehicle);
     } else {
       res.status(405).json({ message: "Method not allowed" });
     }
