@@ -1,0 +1,57 @@
+~/workspace/admin-backend$ cd admin-backend
+git add .
+git commit -m "Fix TypeScript build errors for Vercel deployment"  
+git push origin main
+npx vercel --prod --yes
+bash: cd: admin-backend: No such file or directory
+On branch main
+nothing to commit, working tree clean
+Enumerating objects: 20, done.
+Counting objects: 100% (20/20), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (13/13), 1.81 KiB | 1.81 MiB/s, done.
+Total 13 (delta 9), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (9/9), completed with 7 local objects.
+To https://github.com/jerkean2139/trexmotorsv2.git
+   51a1ab6..500f39f  main -> main
+Vercel CLI 44.7.3
+🔍  Inspect: https://vercel.com/jeremys-projects-0f68a4ab/admin-backend/2dRu9KsmkLCPaZP4dbwrUsEEo8cP [2s]
+✅  Production: https://admin-backend-jmasmsh6s-jeremys-projects-0f68a4ab.vercel.app [2s]
+2025-08-08T01:26:37.633Z  Running build in Washington, D.C., USA (East) – iad1
+2025-08-08T01:26:37.634Z  Build machine configuration: 2 cores, 8 GB
+2025-08-08T01:26:37.654Z  Retrieving list of deployment files...
+2025-08-08T01:26:37.776Z  Previous build caches not available
+2025-08-08T01:26:38.333Z  Downloading 13 deployment files...
+2025-08-08T01:26:41.117Z  Running "vercel build"
+2025-08-08T01:26:41.577Z  Vercel CLI 44.7.3
+2025-08-08T01:26:41.763Z  WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+2025-08-08T01:26:42.214Z  Installing dependencies...
+2025-08-08T01:27:00.608Z  npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2025-08-08T01:27:00.895Z  npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+2025-08-08T01:27:00.965Z  npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+2025-08-08T01:27:00.977Z  npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2025-08-08T01:27:00.985Z  npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+2025-08-08T01:27:01.021Z  npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+2025-08-08T01:27:01.041Z  npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+2025-08-08T01:27:01.102Z  npm warn deprecated gauge@3.0.2: This package is no longer supported.
+2025-08-08T01:27:02.483Z  
+2025-08-08T01:27:02.484Z  added 199 packages in 20s
+2025-08-08T01:27:02.484Z  
+2025-08-08T01:27:02.484Z  20 packages are looking for funding
+2025-08-08T01:27:02.484Z    run `npm fund` for details
+2025-08-08T01:27:02.530Z  Running "npm run vercel-build"
+2025-08-08T01:27:02.640Z  
+2025-08-08T01:27:02.641Z  > trex-admin-backend@1.0.2 vercel-build
+2025-08-08T01:27:02.641Z  > npm run build
+2025-08-08T01:27:02.641Z  
+2025-08-08T01:27:02.755Z  
+2025-08-08T01:27:02.758Z  > trex-admin-backend@1.0.2 build
+2025-08-08T01:27:02.758Z  > tsc
+2025-08-08T01:27:02.759Z  
+Error: Command "npm run vercel-build" exited with 2
+> 
+
+> To check build logs run: `vercel inspect admin-backend-jmasmsh6s-jeremys-projects-0f68a4ab.vercel.app --logs`
+> Or inspect them in your browser at https://admin-backend-jmasmsh6s-jeremys-projects-0f68a4ab.vercel.app/_logs
+~/workspace/admin-backend$ 

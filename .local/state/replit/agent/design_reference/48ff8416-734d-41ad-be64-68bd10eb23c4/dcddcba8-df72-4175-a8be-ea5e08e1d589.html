@@ -1,0 +1,1136 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Rex Motors - Quality Used Cars in Richmond</title>
+    <meta name="description" content="T-Rex Motors - Richmond's premier used car dealership. Browse our quality inventory of pre-owned vehicles with competitive pricing and financing options.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'trex-green': '#37ca37',
+                        'trex-green-dark': '#2d9a2d',
+                        'trex-green-light': '#4ade80'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <!-- @COMPONENT: Header/Navigation -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-car text-trex-green text-2xl mr-2"></i>
+                        <span class="text-2xl font-bold text-gray-900">T-Rex Motors</span>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#inventory" class="text-gray-900 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">Inventory</a>
+                        <a href="#financing" class="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">Financing</a>
+                        <a href="#about" class="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">About Us</a>
+                        <a href="#contact" class="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">Contact</a>
+                        <button data-event="click:showAdminLogin" class="bg-trex-green text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-trex-green-dark transition-colors">Admin</button>
+                    </div>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button data-event="click:toggleMobileMenu" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <!-- @STATE: mobileMenuOpen:boolean = false -->
+        <div class="md:hidden hidden" data-bind="mobileMenuOpen" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+                <a href="#inventory" class="text-gray-900 block px-3 py-2 text-base font-medium">Inventory</a>
+                <a href="#financing" class="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium">Financing</a>
+                <a href="#about" class="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium">About Us</a>
+                <a href="#contact" class="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium">Contact</a>
+                <button class="bg-trex-green text-white block w-full text-left px-3 py-2 text-base font-medium rounded-md mt-2">Admin Login</button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header/Navigation -->
+
+    <!-- @COMPONENT: HeroSection -->
+    <section class="relative bg-gray-900 text-white">
+        <!-- Hero background image with modern luxury cars -->
+        <div class="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080" 
+                 alt="Modern car dealership showroom with luxury vehicles" 
+                 class="w-full h-full object-cover opacity-60" data-mock-image="true">
+        </div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+            <div class="text-center">
+                <h1 class="text-4xl lg:text-6xl font-bold mb-6">
+                    Quality Used Cars in <span class="text-trex-green">Richmond</span>
+                </h1>
+                <p class="text-xl lg:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
+                    Discover your next vehicle from our extensive inventory of quality pre-owned cars, trucks, and SUVs. 
+                    Competitive pricing, financing available.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-trex-green hover:bg-trex-green-dark text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
+                        <i class="fas fa-search mr-2"></i>Browse Inventory
+                    </button>
+                    <button class="border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
+                        <i class="fas fa-calculator mr-2"></i>Get Financing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: HeroSection -->
+
+    <!-- @COMPONENT: SearchFilters -->
+    <section class="bg-white py-8 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Find Your Perfect Vehicle</h2>
+                
+                <!-- Search Bar -->
+                <div class="mb-6">
+                    <div class="relative">
+                        <input type="text" 
+                               placeholder="Search by make, model, year..." 
+                               class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-trex-green focus:border-trex-green"
+                               data-bind="searchQuery">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" data-bind="selectedMake">
+                            <option value="">All Makes</option>
+                            <option value="ford">Ford</option>
+                            <option value="toyota">Toyota</option>
+                            <option value="honda">Honda</option>
+                            <option value="chevrolet">Chevrolet</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" data-bind="selectedModel">
+                            <option value="">All Models</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Year Range</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" data-bind="yearRange">
+                            <option value="">All Years</option>
+                            <option value="2020-2024">2020-2024</option>
+                            <option value="2015-2019">2015-2019</option>
+                            <option value="2010-2014">2010-2014</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" data-bind="priceRange">
+                            <option value="">All Prices</option>
+                            <option value="0-15000">Under $15,000</option>
+                            <option value="15000-25000">$15,000 - $25,000</option>
+                            <option value="25000-35000">$25,000 - $35,000</option>
+                            <option value="35000+">$35,000+</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button class="w-full bg-trex-green hover:bg-trex-green-dark text-white px-4 py-2 rounded-md font-medium transition-colors"
+                                data-event="click:applyFilters">
+                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: SearchFilters -->
+
+    <!-- @COMPONENT: VehicleInventory -->
+    <section id="inventory" class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">Featured Vehicles</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600" data-bind="vehicleCount">24 vehicles found</span>
+                    <select class="px-3 py-2 border border-gray-300 rounded-md text-sm" data-bind="sortBy">
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="year-desc">Year: Newest First</option>
+                        <option value="mileage-asc">Mileage: Low to High</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- @MAP: vehicles.map(vehicle => ( -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Vehicle Card 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- Modern white SUV in a dealership setting -->
+                    <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="2022 Honda CR-V" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2022 Honda CR-V</h3>
+                            <span class="bg-trex-green text-white px-2 py-1 rounded text-sm font-medium">Featured</span>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">EX-L AWD</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">32,450 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Gasoline</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">CVT</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Pearl White</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$28,995</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- Silver luxury sedan on a car lot -->
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="2021 Toyota Camry" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2021 Toyota Camry</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">XLE Hybrid</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">18,230 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Hybrid</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">CVT</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Silver</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$26,750</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- Black pickup truck in outdoor setting -->
+                    <img src="https://pixabay.com/get/gebd5e81928736b8408137dd7432604e864a5f1a0a78ccc67ef987f869c02181355a3adcd9b879421c86a906f81f9c0404b5b225657353ee5fc1b0329bcbc9694_1280.jpg" 
+                         alt="2020 Ford F-150" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2020 Ford F-150</h3>
+                            <span class="bg-yellow-500 text-white px-2 py-1 rounded text-sm font-medium">Low Miles</span>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">XLT SuperCrew 4WD</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">41,890 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Gasoline</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">10-Speed Auto</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Magnetic Black</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$32,900</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card 4 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- Red sports car in a modern setting -->
+                    <img src="https://images.unsplash.com/photo-1542282088-fe8426682b8f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="2019 Chevrolet Camaro" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2019 Chevrolet Camaro</h3>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">2SS Convertible</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">25,100 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Gasoline</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">8-Speed Auto</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Red Hot</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$35,995</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card 5 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- Blue compact car in urban setting -->
+                    <img src="https://pixabay.com/get/g1081e0f0aa0e820812c88d4588cd36950ac704a1f7b098fd24bfaf19af88c21ab9aa76ffcea766ae634b0dc241417f0bb50f97ed2f71350e64a42844dcce4737_1280.jpg" 
+                         alt="2021 Honda Civic" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2021 Honda Civic</h3>
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">Fuel Efficient</span>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">Sport Hatchback</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">22,340 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Gasoline</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">6-Speed Manual</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Aegean Blue</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$22,450</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card 6 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" data-event="click:viewVehicleDetail">
+                    <!-- White luxury SUV in elegant setting -->
+                    <img src="https://images.unsplash.com/photo-1600712242805-5f78671b24da?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="2020 Lexus RX 350" 
+                         class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900" data-bind="vehicle.year + ' ' + vehicle.make + ' ' + vehicle.model">2020 Lexus RX 350</h3>
+                            <span class="bg-purple-500 text-white px-2 py-1 rounded text-sm font-medium">Luxury</span>
+                        </div>
+                        <p class="text-gray-600 mb-4" data-bind="vehicle.trim">AWD Premium</p>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-tachometer-alt mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.mileage">38,750 miles</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-gas-pump mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.fuelType">Gasoline</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-cogs mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.transmission">8-Speed Auto</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-palette mr-2 text-trex-green"></i>
+                                <span data-bind="vehicle.color">Eminent White</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-trex-green" data-bind="'$' + vehicle.price.toLocaleString()">$39,500</span>
+                            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+
+            <!-- Pagination -->
+            <div class="flex justify-center mt-12">
+                <nav class="flex space-x-2">
+                    <button class="px-3 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-2 bg-trex-green text-white rounded-md">1</button>
+                    <button class="px-3 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">3</button>
+                    <button class="px-3 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: VehicleInventory -->
+
+    <!-- @COMPONENT: VehicleDetailModal -->
+    <!-- @STATE: showVehicleDetail:boolean = false -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden" data-bind="showVehicleDetail" id="vehicle-detail-modal">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900" data-bind="selectedVehicle.year + ' ' + selectedVehicle.make + ' ' + selectedVehicle.model">2022 Honda CR-V EX-L AWD</h2>
+                <button class="text-gray-400 hover:text-gray-600" data-event="click:closeVehicleDetail">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Image Gallery -->
+                <!-- @FUNCTIONALITY: This should implement image carousel/gallery with thumbnails -->
+                <div class="mb-8">
+                    <div class="relative mb-4">
+                        <!-- Main image display for vehicle detail view -->
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1200&h=800" 
+                             alt="2022 Honda CR-V main view" 
+                             class="w-full h-96 object-cover rounded-lg" data-mock-image="true">
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md">
+                            1 of 12 photos
+                        </div>
+                    </div>
+                    
+                    <!-- Thumbnail gallery -->
+                    <div class="grid grid-cols-6 gap-2">
+                        <!-- Vehicle exterior front view thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Front view" 
+                             class="w-full h-16 object-cover rounded border-2 border-trex-green cursor-pointer" data-mock-image="true">
+                        <!-- Vehicle interior view thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Interior view" 
+                             class="w-full h-16 object-cover rounded border cursor-pointer hover:border-trex-green" data-mock-image="true">
+                        <!-- Vehicle side profile thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Side view" 
+                             class="w-full h-16 object-cover rounded border cursor-pointer hover:border-trex-green" data-mock-image="true">
+                        <!-- Vehicle rear view thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Rear view" 
+                             class="w-full h-16 object-cover rounded border cursor-pointer hover:border-trex-green" data-mock-image="true">
+                        <!-- Vehicle engine bay thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Engine view" 
+                             class="w-full h-16 object-cover rounded border cursor-pointer hover:border-trex-green" data-mock-image="true">
+                        <!-- Vehicle dashboard and controls thumbnail -->
+                        <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=150" 
+                             alt="Dashboard view" 
+                             class="w-full h-16 object-cover rounded border cursor-pointer hover:border-trex-green" data-mock-image="true">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Vehicle Details -->
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-3xl font-bold text-trex-green mb-2" data-bind="'$' + selectedVehicle.price.toLocaleString()">$28,995</h3>
+                                <p class="text-gray-600" data-bind="selectedVehicle.trim">EX-L AWD</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Stock #</p>
+                                <p class="font-medium" data-bind="selectedVehicle.stock">TR2024001</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-tachometer-alt mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Mileage</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.mileage">32,450 miles</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-gas-pump mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Fuel Type</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.fuelType">Gasoline</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-cogs mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Transmission</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.transmission">CVT</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-palette mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Exterior Color</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.color">Pearl White</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-road mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Drivetrain</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.drivetrain">AWD</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-users mr-3 text-trex-green"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Seating</p>
+                                        <p class="font-medium" data-bind="selectedVehicle.seating">5 passengers</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div>
+                            <h4 class="text-lg font-semibold mb-4">Key Features</h4>
+                            <!-- @MAP: selectedVehicle.features.map(feature => ( -->
+                            <div class="grid grid-cols-1 gap-2">
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Leather-Appointed Seating</span>
+                                </div>
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Honda Sensing Safety Suite</span>
+                                </div>
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Navigation System</span>
+                                </div>
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Heated Front Seats</span>
+                                </div>
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Power Tailgate</span>
+                                </div>
+                                <div class="flex items-center" data-mock="true">
+                                    <i class="fas fa-check text-trex-green mr-2"></i>
+                                    <span class="text-sm">Apple CarPlay & Android Auto</span>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h4 class="text-xl font-semibold mb-4">Interested in this vehicle?</h4>
+                            <form class="space-y-4" data-event="submit:handleContactSubmit">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interest Type</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green">
+                                        <option>Schedule Test Drive</option>
+                                        <option>Get More Information</option>
+                                        <option>Check Financing Options</option>
+                                        <option>Trade-in Evaluation</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                    <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" placeholder="Any additional questions or comments..."></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-trex-green hover:bg-trex-green-dark text-white py-3 rounded-md font-medium transition-colors">
+                                    Send Inquiry
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Financing Calculator -->
+                        <div class="bg-blue-50 rounded-lg p-6 mt-6">
+                            <h4 class="text-lg font-semibold mb-4">Payment Calculator</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Down Payment</label>
+                                    <input type="number" value="5000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Loan Term</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green">
+                                        <option value="36">36 months</option>
+                                        <option value="48">48 months</option>
+                                        <option value="60" selected>60 months</option>
+                                        <option value="72">72 months</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                                    <input type="number" value="5.9" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green">
+                                </div>
+                                <div class="bg-white rounded-md p-4 border">
+                                    <div class="text-center">
+                                        <p class="text-sm text-gray-600">Estimated Monthly Payment</p>
+                                        <p class="text-2xl font-bold text-trex-green" data-bind="calculatedPayment">$458/mo</p>
+                                        <p class="text-xs text-gray-500">*Estimate only. Actual terms may vary.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: VehicleDetailModal -->
+
+    <!-- @COMPONENT: AdminDashboard -->
+    <section class="min-h-screen bg-gray-100 hidden" id="admin-dashboard" data-bind="showAdminDashboard">
+        <div class="flex">
+            <!-- Sidebar -->
+            <div class="w-64 bg-gray-900 text-white">
+                <div class="p-6">
+                    <div class="flex items-center mb-8">
+                        <i class="fas fa-car text-trex-green text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">T-Rex Admin</span>
+                    </div>
+                    <nav class="space-y-2">
+                        <a href="#" class="block px-4 py-2 rounded bg-gray-800 text-trex-green font-medium">
+                            <i class="fas fa-car mr-2"></i>Vehicle Management
+                        </a>
+                        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-800 text-gray-300">
+                            <i class="fas fa-envelope mr-2"></i>Customer Inquiries
+                        </a>
+                        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-800 text-gray-300">
+                            <i class="fas fa-chart-bar mr-2"></i>Sales Reports
+                        </a>
+                        <a href="#" class="block px-4 py-2 rounded hover:bg-gray-800 text-gray-300">
+                            <i class="fas fa-cog mr-2"></i>Settings
+                        </a>
+                        <button class="block w-full text-left px-4 py-2 rounded hover:bg-gray-800 text-gray-300" data-event="click:logout">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1">
+                <!-- Header -->
+                <div class="bg-white shadow-sm border-b px-6 py-4">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold text-gray-900">Vehicle Management</h1>
+                        <button class="bg-trex-green hover:bg-trex-green-dark text-white px-4 py-2 rounded-md font-medium" data-event="click:showAddVehicleModal">
+                            <i class="fas fa-plus mr-2"></i>Add New Vehicle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vehicle Management Table -->
+                <div class="p-6">
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-900">Current Inventory</h2>
+                                <div class="flex space-x-2">
+                                    <input type="text" placeholder="Search vehicles..." class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Table -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mileage</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <!-- @MAP: adminVehicles.map(vehicle => ( -->
+                                    <tr data-mock="true">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-12 w-16">
+                                                    <!-- Small vehicle thumbnail for admin table -->
+                                                    <img class="h-12 w-16 rounded object-cover" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=120&h=80" alt="Honda CR-V" data-mock-image="true">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Honda CR-V</div>
+                                                    <div class="text-sm text-gray-500">EX-L AWD</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2022</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">32,450</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$28,995</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Available</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button class="text-trex-green hover:text-trex-green-dark" data-event="click:editVehicle">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" data-event="click:deleteVehicle">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" data-event="click:viewVehicle">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr data-mock="true">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-12 w-16">
+                                                    <!-- Toyota Camry thumbnail for admin table -->
+                                                    <img class="h-12 w-16 rounded object-cover" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=120&h=80" alt="Toyota Camry" data-mock-image="true">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Toyota Camry</div>
+                                                    <div class="text-sm text-gray-500">XLE Hybrid</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2021</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">18,230</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$26,750</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button class="text-trex-green hover:text-trex-green-dark" data-event="click:editVehicle">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" data-event="click:deleteVehicle">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="text-blue-600 hover:text-blue-900" data-event="click:viewVehicle">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: AdminDashboard -->
+
+    <!-- @COMPONENT: AdminLoginModal -->
+    <!-- @STATE: showAdminLogin:boolean = false -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden" data-bind="showAdminLogin" id="admin-login-modal">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Admin Login</h2>
+                <button class="text-gray-400 hover:text-gray-600" data-event="click:closeAdminLogin">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4" data-event="submit:handleAdminLogin">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" value="admin" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" value="trex2025!" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                </div>
+                <button type="submit" class="w-full bg-trex-green hover:bg-trex-green-dark text-white py-2 rounded-md font-medium transition-colors">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AdminLoginModal -->
+
+    <!-- @COMPONENT: AddVehicleModal -->
+    <!-- @STATE: showAddVehicle:boolean = false -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden" data-bind="showAddVehicle" id="add-vehicle-modal">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">Add New Vehicle</h2>
+                <button class="text-gray-400 hover:text-gray-600" data-event="click:closeAddVehicle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <form class="space-y-6" data-event="submit:handleAddVehicle">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Make</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Model</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <input type="number" min="1990" max="2024" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Trim</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                            <input type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mileage</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Exterior Color</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fuel Type</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                <option value="">Select fuel type</option>
+                                <option value="gasoline">Gasoline</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="electric">Electric</option>
+                                <option value="diesel">Diesel</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                <option value="">Select transmission</option>
+                                <option value="automatic">Automatic</option>
+                                <option value="manual">Manual</option>
+                                <option value="cvt">CVT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Drivetrain</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" required>
+                                <option value="">Select drivetrain</option>
+                                <option value="fwd">FWD</option>
+                                <option value="rwd">RWD</option>
+                                <option value="awd">AWD</option>
+                                <option value="4wd">4WD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-trex-green focus:border-trex-green" placeholder="Enter vehicle description..."></textarea>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center hover:border-trex-green transition-colors">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">Click to upload images or drag and drop</p>
+                            <p class="text-sm text-gray-500">PNG, JPG up to 10MB each</p>
+                            <button type="button" class="mt-4 bg-trex-green hover:bg-trex-green-dark text-white px-4 py-2 rounded-md text-sm font-medium transition-colors" data-implementation="Use ObjectUploader component here">
+                                <i class="fas fa-plus mr-2"></i>Select Images
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-6 border-t">
+                        <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50" data-event="click:closeAddVehicle">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-trex-green hover:bg-trex-green-dark text-white px-4 py-2 rounded-md font-medium transition-colors">
+                            Add Vehicle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AddVehicleModal -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-car text-trex-green text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">T-Rex Motors</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Richmond's premier used car dealership, serving customers with quality vehicles and exceptional service since 2010.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-trex-green">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-trex-green">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-trex-green">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-trex-green">
+                            <i class="fab fa-google"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#inventory" class="text-gray-400 hover:text-trex-green">Browse Inventory</a></li>
+                        <li><a href="#financing" class="text-gray-400 hover:text-trex-green">Financing Options</a></li>
+                        <li><a href="#trade-in" class="text-gray-400 hover:text-trex-green">Trade-In Value</a></li>
+                        <li><a href="#warranties" class="text-gray-400 hover:text-trex-green">Extended Warranties</a></li>
+                        <li><a href="#service" class="text-gray-400 hover:text-trex-green">Service Center</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Vehicle Types</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#sedans" class="text-gray-400 hover:text-trex-green">Sedans</a></li>
+                        <li><a href="#suvs" class="text-gray-400 hover:text-trex-green">SUVs & Crossovers</a></li>
+                        <li><a href="#trucks" class="text-gray-400 hover:text-trex-green">Pickup Trucks</a></li>
+                        <li><a href="#sports" class="text-gray-400 hover:text-trex-green">Sports Cars</a></li>
+                        <li><a href="#luxury" class="text-gray-400 hover:text-trex-green">Luxury Vehicles</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-gray-400">
+                            <i class="fas fa-map-marker-alt mr-2 text-trex-green"></i>
+                            <span>1234 Main Street<br>Richmond, VA 23230</span>
+                        </div>
+                        <div class="flex items-center text-gray-400">
+                            <i class="fas fa-phone mr-2 text-trex-green"></i>
+                            <span>(804) 555-TREX</span>
+                        </div>
+                        <div class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope mr-2 text-trex-green"></i>
+                            <span>info@trexmotors.com</span>
+                        </div>
+                        <div class="flex items-center text-gray-400">
+                            <i class="fas fa-clock mr-2 text-trex-green"></i>
+                            <span>Mon-Sat: 9AM-7PM<br>Sunday: 12PM-5PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 T-Rex Motors. All rights reserved. | Privacy Policy | Terms of Service</p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            // Basic modal and navigation functionality for mockup demonstration
+            let currentView = 'customer'; // customer or admin
+            let showVehicleDetail = false;
+            let showAdminLogin = false;
+            let showAddVehicle = false;
+            let mobileMenuOpen = false;
+
+            // Navigation functionality
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-event]');
+                if (!target) return;
+
+                const event = target.getAttribute('data-event');
+                
+                switch(event) {
+                    case 'click:showAdminLogin':
+                        document.getElementById('admin-login-modal').classList.remove('hidden');
+                        break;
+                    
+                    case 'click:closeAdminLogin':
+                        document.getElementById('admin-login-modal').classList.add('hidden');
+                        break;
+                    
+                    case 'click:viewVehicleDetail':
+                        document.getElementById('vehicle-detail-modal').classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                        break;
+                    
+                    case 'click:closeVehicleDetail':
+                        document.getElementById('vehicle-detail-modal').classList.add('hidden');
+                        document.body.style.overflow = 'auto';
+                        break;
+                    
+                    case 'click:showAddVehicleModal':
+                        document.getElementById('add-vehicle-modal').classList.remove('hidden');
+                        break;
+                    
+                    case 'click:closeAddVehicle':
+                        document.getElementById('add-vehicle-modal').classList.add('hidden');
+                        break;
+                    
+                    case 'click:toggleMobileMenu':
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        mobileMenu.classList.toggle('hidden');
+                        break;
+                    
+                    case 'submit:handleAdminLogin':
+                        e.preventDefault();
+                        // TODO: Implement actual authentication
+                        document.getElementById('admin-login-modal').classList.add('hidden');
+                        document.querySelector('header').style.display = 'none';
+                        document.querySelector('section:not(#admin-dashboard)').style.display = 'none';
+                        document.getElementById('admin-dashboard').classList.remove('hidden');
+                        break;
+                    
+                    case 'click:logout':
+                        // TODO: Implement actual logout
+                        document.querySelector('header').style.display = 'block';
+                        document.querySelectorAll('section:not(#admin-dashboard)').forEach(section => {
+                            section.style.display = 'block';
+                        });
+                        document.getElementById('admin-dashboard').classList.add('hidden');
+                        break;
+                    
+                    case 'submit:handleAddVehicle':
+                    case 'submit:handleContactSubmit':
+                        e.preventDefault();
+                        // TODO: Implement form submission logic
+                        alert('Form submitted successfully! (This is a mockup)');
+                        break;
+                    
+                    case 'click:applyFilters':
+                        // TODO: Implement filter functionality
+                        console.log('Applying filters...');
+                        break;
+                }
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+                    e.target.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+~/workspace/admin-backend$ cd admin-backend
+git add .
+git commit -m "Fix TypeScript dependencies for successful Vercel build"
+git push origin main
+npx vercel --prod --yes
+bash: cd: admin-backend: No such file or directory
+On branch main
+nothing to commit, working tree clean
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (8/8), 868 bytes | 868.00 KiB/s, done.
+Total 8 (delta 6), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (6/6), completed with 6 local objects.
+To https://github.com/jerkean2139/trexmotorsv2.git
+   9dce9a1..06e5757  main -> main
+Vercel CLI 44.7.3
+🔍  Inspect: https://vercel.com/jeremys-projects-0f68a4ab/admin-backend/EJkwiYQodv4yrXQeBnHbDVyJUSXQ [1s]
+✅  Production: https://admin-backend-fe2fl2kul-jeremys-projects-0f68a4ab.vercel.app [1s]
+2025-08-08T01:33:22.448Z  Running build in Washington, D.C., USA (East) – iad1
+2025-08-08T01:33:22.448Z  Build machine configuration: 2 cores, 8 GB
+2025-08-08T01:33:22.463Z  Retrieving list of deployment files...
+2025-08-08T01:33:22.992Z  Downloading 14 deployment files...
+2025-08-08T01:33:23.251Z  Restored build cache from previous deployment (9mrRehQFEwapicSaemdPJg5JEH7K)
+2025-08-08T01:33:25.664Z  Running "vercel build"
+2025-08-08T01:33:26.111Z  Vercel CLI 44.7.3
+2025-08-08T01:33:26.285Z  WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+2025-08-08T01:33:26.715Z  Installing dependencies...
+2025-08-08T01:33:27.624Z  
+2025-08-08T01:33:27.625Z  up to date in 690ms
+2025-08-08T01:33:27.625Z  
+2025-08-08T01:33:27.625Z  20 packages are looking for funding
+2025-08-08T01:33:27.626Z    run `npm fund` for details
+2025-08-08T01:33:27.655Z  Running "npm run vercel-build"
+2025-08-08T01:33:27.761Z  
+2025-08-08T01:33:27.762Z  > trex-admin-backend@1.0.3 vercel-build
+2025-08-08T01:33:27.762Z  > npm run build
+2025-08-08T01:33:27.762Z  
+2025-08-08T01:33:27.879Z  
+2025-08-08T01:33:27.879Z  > trex-admin-backend@1.0.3 build
+2025-08-08T01:33:27.879Z  > tsc
+2025-08-08T01:33:27.880Z  
+2025-08-08T01:33:31.246Z  Using TypeScript 5.9.2 (local user-provided)
+2025-08-08T01:33:38.899Z  Build Completed in /vercel/output [12s]
+2025-08-08T01:33:39.119Z  Deploying outputs...
+❗️  Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+~/workspace/admin-backend$ 

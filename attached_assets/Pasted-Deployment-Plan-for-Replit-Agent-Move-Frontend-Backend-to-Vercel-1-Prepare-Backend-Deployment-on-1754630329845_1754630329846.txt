@@ -1,0 +1,68 @@
+Deployment Plan for Replit Agent: Move Frontend + Backend to Vercel
+1. Prepare Backend Deployment on Vercel (If not done)
+Ensure backend code is pushed to GitHub repo.
+
+Confirm vercel.json and package.json are configured correctly for serverless functions.
+
+Set necessary backend environment variables (e.g., DATABASE_URL, SESSION_SECRET) in Vercel Dashboard → Project Settings → Environment Variables.
+
+2. Prepare Frontend for Vercel Deployment
+Confirm frontend code is in a separate folder/repo (or monorepo with frontend folder).
+
+Update frontend config to use relative API paths (/api/) or point to Vercel backend URL if separate.
+
+Ensure frontend build script is working (e.g., npm run build with Vite/React/etc).
+
+Make sure environment variables for frontend (e.g., VITE_ENABLE_ADMIN=true) are set for Vercel frontend project.
+
+3. Create or Link Frontend Project on Vercel
+Use Vercel CLI or UI to create a new Vercel project for frontend.
+
+Connect frontend repo or folder.
+
+Set frontend environment variables in the Vercel dashboard exactly like Netlify’s VITE_ENABLE_ADMIN=true.
+
+Set build & output settings to match your frontend framework (e.g., Vite).
+
+4. Configure Frontend to Backend Connection
+If backend and frontend are in same project, API routes are under /api/*. No URL change needed.
+
+If backend is separate, set frontend env var (e.g., VITE_API_URL=https://admin-backend-xxx.vercel.app/api) and update frontend API calls accordingly.
+
+5. Deploy Frontend to Vercel
+Run vercel --prod or push to main branch triggering deployment.
+
+Check Vercel logs for build success and environment variables recognition.
+
+Confirm frontend loads and admin UI shows enabled admin access (no warning).
+
+Test frontend calls to backend APIs are successful.
+
+6. Clean up Netlify
+Once frontend is stable on Vercel, disable or archive Netlify frontend deployment to avoid confusion.
+
+7. Post Deployment Testing
+Verify frontend admin UI loads fully with admin enabled.
+
+Test API endpoints from frontend.
+
+Test session/login flows (especially with Vercel SSO disabled if needed).
+
+Monitor logs for errors or environment issues.
+
+Optional Extras:
+Automate environment sync between frontend and backend projects via scripts or GitHub Actions.
+
+Add custom domain and HTTPS setup on Vercel for frontend and backend projects.
+
+Example Instructions to Replit Agent (short version):
+markdown
+Copy
+1. Confirm backend repo and environment variables are correctly set on Vercel.
+2. Prepare frontend code for Vercel (relative API paths, build scripts).
+3. Create frontend project on Vercel and set frontend env vars (`VITE_ENABLE_ADMIN=true`).
+4. Deploy frontend using `vercel --prod`.
+5. Test frontend and backend connection; fix any API URL or CORS issues.
+6. After stable deployment, remove Netlify frontend deployment.
+7. Verify admin UI works and login is functional.
+Would you like me to generate ready-to-run CLI commands and config file snippets for each step too?

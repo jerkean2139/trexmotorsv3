@@ -2,31 +2,21 @@
 
 This is a comprehensive used car dealership website for T-Rex Motors in Richmond. The application provides a customer-facing vehicle inventory browsing system with advanced search and filter capabilities, vehicle detail modals with inquiry forms, and a complete admin dashboard for vehicle management. The system is built as a full-stack web application using modern React and Node.js technologies with a PostgreSQL database.
 
-## Recent Completion (August 2025)
+## Current Status (November 2025)
 ✓ **Full Application Completed** - Professional dealership website with complete functionality
-✓ **Vehicle Inventory System** - 21+ sample vehicles with comprehensive data
+✓ **Vehicle Inventory System** - 21+ vehicles with comprehensive data
 ✓ **Search & Filter System** - Advanced filtering by make, year range, price range with real-time results
 ✓ **Admin Dashboard** - Complete vehicle management with authentication (admin/trex2025!)
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
 ✓ **Database Integration** - Full PostgreSQL setup with proper schema and sample data
-✓ **Hero Section** - Classic muscle car imagery representing T-Rex Motors brand
+✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
 
-## Latest Updates (January 2025)
-✓ **Production Deployment Ready** - Frontend connected to Vercel backend URL for live deployment
-✓ **Admin Backend on Vercel** - Successfully deployed to `trexmotorsv2-bd2tufhyz-jeremys-projects-0f68a4ab.vercel.app`
-✓ **Production Database Migration** - All 20 vehicles migrated to production PostgreSQL database
-✓ **GitHub Integration** - Main branch pushed with all deployment configurations
-✓ **Enhanced Image Upload** - Dual system supporting local files and Google Drive URLs
-✓ **Smart URL Processing** - Automatic conversion of Google Drive sharing links to direct image URLs
-✓ **Improved Form Handling** - Fixed textarea multiline support and proper form state management
-✓ **Debug Console Integration** - Real-time logging for troubleshooting image loading issues
-✓ **Image Management Features** - Individual image removal, clear all, and 10-image limit enforcement
-✓ **Logo Integration** - Professional T-Rex Motors logo implementation across all pages
-✓ **Navigation System** - Fully functional header navigation with About Us and Contact sections
-✓ **Legal Pages** - Privacy Policy and Terms of Service pages with proper business information
-✓ **Netlify Deployment** - Added Netlify configuration files for static site deployment
-✓ **Real Vehicle Data Export** - All 20 vehicles from database exported for static deployment
-✓ **Hybrid Data System** - Automatically falls back to exported data when API unavailable
+## Deployment Platform: Railway
+- **Configuration**: `railway.toml` in project root
+- **Build**: `npm run build` (Vite builds frontend, esbuild bundles backend)
+- **Start**: `npm run start` (serves from dist/)
+- **Database**: PostgreSQL on Railway (same as dev for matching schemas)
+- **Documentation**: See `RAILWAY_DEPLOYMENT.md` for full deployment guide
 
 # User Preferences
 
@@ -58,17 +48,19 @@ Preferred communication style: Simple, everyday language.
 - `/client` - React frontend application with components, pages, and utilities
 - `/server` - Express backend with API routes, database logic, and authentication
 - `/shared` - Common TypeScript schemas and types used by both frontend and backend
+- `railway.toml` - Railway deployment configuration
 - Single Vite configuration at project root for unified build process
 
 ## Development vs Production Strategy
-- Development uses Vite dev server with hot module replacement
-- Production serves static files from Express with proper MIME types
+- Development uses Vite dev server with hot module replacement (port 5000)
+- Production serves static files from Express (Railway handles PORT)
 - Environment-based configuration for database connections and authentication
+- Unified deployment on Railway (frontend and backend on same domain)
 
 # External Dependencies
 
 ## Database
-- **Neon Database**: Serverless PostgreSQL database with connection pooling
+- **PostgreSQL**: Serverless PostgreSQL database (Neon in development, Railway in production)
 - **Drizzle Kit**: Database migration and schema management tools
 
 ## UI Components
@@ -86,4 +78,15 @@ Preferred communication style: Simple, everyday language.
 ## Development Tools
 - **Replit Integration**: Development environment optimization with cartographer and error modal plugins
 - **TypeScript**: Full-stack type safety with shared schema definitions
-- **ESLint/Prettier**: Code quality and formatting (implied by modern React setup)
+
+# Environment Variables
+
+## Required for Production (Railway)
+- `DATABASE_URL` - PostgreSQL connection string (auto-provided by Railway PostgreSQL)
+- `SESSION_SECRET` - Secure random string for session encryption
+- `NODE_ENV` - Set to `production`
+- `VITE_ENABLE_ADMIN` - Set to `true` to enable admin dashboard
+
+## Admin Credentials
+- Username: `admin`
+- Password: `trex2025!` (or custom password set in database)

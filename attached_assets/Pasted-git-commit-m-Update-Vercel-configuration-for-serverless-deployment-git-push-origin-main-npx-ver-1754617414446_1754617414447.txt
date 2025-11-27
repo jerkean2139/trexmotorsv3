@@ -1,0 +1,46 @@
+git commit -m "Update Vercel configuration for serverless deployment"
+git push origin main
+npx vercel --prod --yes
+bash: cd: admin-backend: No such file or directory
+On branch main
+nothing to commit, working tree clean
+Enumerating objects: 24, done.
+Counting objects: 100% (24/24), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (14/14), 2.59 KiB | 2.59 MiB/s, done.
+Total 14 (delta 10), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (10/10), completed with 9 local objects.
+To https://github.com/jerkean2139/trexmotorsv2.git
+   06e5757..6395fc2  main -> main
+Vercel CLI 44.7.3
+🔍  Inspect: https://vercel.com/jeremys-projects-0f68a4ab/admin-backend/8mujcmiwo8usEG9S3Pkqdve1TRaa [1s]
+✅  Production: https://admin-backend-a203t5ml6-jeremys-projects-0f68a4ab.vercel.app [1s]
+2025-08-08T01:40:48.100Z  Running build in Washington, D.C., USA (East) – iad1
+2025-08-08T01:40:48.101Z  Build machine configuration: 2 cores, 8 GB
+2025-08-08T01:40:48.118Z  Retrieving list of deployment files...
+2025-08-08T01:40:48.688Z  Downloading 14 deployment files...
+2025-08-08T01:40:48.949Z  Restored build cache from previous deployment (EJkwiYQodv4yrXQeBnHbDVyJUSXQ)
+2025-08-08T01:40:51.483Z  Running "vercel build"
+2025-08-08T01:40:51.928Z  Vercel CLI 44.7.3
+2025-08-08T01:40:52.105Z  WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+2025-08-08T01:40:52.560Z  Installing dependencies...
+2025-08-08T01:40:53.585Z  
+2025-08-08T01:40:53.586Z  up to date in 760ms
+2025-08-08T01:40:53.587Z  
+2025-08-08T01:40:53.587Z  20 packages are looking for funding
+2025-08-08T01:40:53.588Z    run `npm fund` for details
+2025-08-08T01:40:53.618Z  Running "npm run vercel-build"
+2025-08-08T01:40:53.731Z  
+2025-08-08T01:40:53.731Z  > trex-admin-backend@1.0.3 vercel-build
+2025-08-08T01:40:53.731Z  > npm run build
+2025-08-08T01:40:53.732Z  
+2025-08-08T01:40:53.846Z  
+2025-08-08T01:40:53.846Z  > trex-admin-backend@1.0.3 build
+2025-08-08T01:40:53.846Z  > tsc
+2025-08-08T01:40:53.846Z  
+2025-08-08T01:40:57.374Z  Using TypeScript 5.9.2 (local user-provided)
+2025-08-08T01:41:05.216Z  Build Completed in /vercel/output [13s]
+2025-08-08T01:41:05.426Z  Deploying outputs...
+❗️  Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+~/workspace/admin-backend$ 

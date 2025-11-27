@@ -1,0 +1,64 @@
+Great! This log snippet tells us:
+
+isDevelopment: false means you’re in production mode (good, this matches your Vercel deployment).
+
+isAdminEnabled: true means the admin panel is enabled based on your environment variable VITE_ENABLE_ADMIN = 'true'.
+
+isStaticDeployment: false means it expects a dynamic backend (not just static files).
+
+The windowLocation is correct — you’re on your frontend admin URL in Vercel.
+
+But the critical issue is still here:
+pgsql
+Copy
+Access to fetch at 'https://admin-backend-...vercel.app/api/public/vehicles' from origin 'https://workspace-...vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+What to do next — fix CORS on the backend API
+1. Ensure your backend serverless functions explicitly add the right CORS headers
+Example minimal middleware for CORS in your backend API handlers:
+
+ts
+Copy
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+const allowedOrigins = [
+  'https://workspace-fe8jo9ncd-jeremys-projects-0f68a4ab.vercel.app',
+  'https://your-other-frontend-url.vercel.app'
+];
+
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', 'null');
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    // Handle preflight requests
+    return res.status(204).end();
+  }
+  
+  // Your API logic here...
+  res.json({ message: 'CORS headers set properly' });
+}
+2. Add this CORS handling to every serverless function (e.g., /api/public/vehicles.ts)
+This handles preflight OPTIONS requests (which browsers send automatically).
+
+It ensures only your frontend domains are allowed, instead of '*', which Vercel might restrict.
+
+3. Deploy backend with this fix and test
+Once deployed, test fetching /api/public/vehicles from your frontend domain.
+
+Use curl -H "Origin: https://workspace-fe8jo9ncd-jeremys-projects-0f68a4ab.vercel.app" to simulate browser CORS.
+
+4. Verify frontend is calling the correct backend URL
+Make sure your frontend’s environment variable or config points to the latest deployed backend URL.
+
+Summary
+The core problem is that your backend serverless functions aren’t responding with correct CORS headers allowing your frontend domain.
+
+Fixing that middleware in your backend API handlers will unlock the connection.

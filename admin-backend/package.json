@@ -1,33 +1,32 @@
 {
   "name": "trex-admin-backend",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "type": "module",
+  "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "vercel-build": "npm run build",
-    "db:push": "drizzle-kit push"
+    "build": "echo 'No build needed for serverless functions'",
+    "start": "echo 'Serverless functions do not need a start script'"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
+    "@vercel/node": "^3.0.21",
+    "@neondatabase/serverless": "^0.9.0",
+    "drizzle-orm": "^0.29.3",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "drizzle-orm": "^0.36.4",
-    "drizzle-zod": "^0.5.1",
-    "express": "^4.21.1",
-    "express-session": "^1.18.1",
-    "connect-pg-simple": "^9.0.1",
-    "zod": "^3.23.8"
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/express-session": "^1.18.0",
-    "@types/node": "^22.10.2",
-    "drizzle-kit": "^0.31.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.17.10",
+    "@types/node": "^20.11.5",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }

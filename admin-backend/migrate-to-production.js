@@ -5,11 +5,21 @@ import ws from 'ws';
 // Configure WebSocket for serverless
 neonConfig.webSocketConstructor = ws;
 
-// You'll need to set these URLs
-const DEV_DATABASE_URL = 'postgresql://neondb_owner:npg_8M5exDlqvjsV@ep-dark-pine-adww7qup.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
-const PROD_DATABASE_URL = 'postgresql://neondb_owner:npg_GcEpRV9vhFg6@ep-hidden-recipe-adwwt15c.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require'; // Replace with your production URL
+// Database URLs from environment variables
+const DEV_DATABASE_URL = process.env.DEV_DATABASE_URL;
+const PROD_DATABASE_URL = process.env.PROD_DATABASE_URL || process.env.DATABASE_URL;
 
 async function migrateData() {
+  // Validate environment variables
+  if (!DEV_DATABASE_URL) {
+    throw new Error('❌ DEV_DATABASE_URL environment variable is required. Please set it in your environment.');
+  }
+  if (!PROD_DATABASE_URL) {
+    throw new Error('❌ PROD_DATABASE_URL or DATABASE_URL environment variable is required. Please set it in your environment.');
+  }
+
+  console.log('🔐 Using environment variables for database connections (credentials secured)');
+  
   const devDb = new Pool({ connectionString: DEV_DATABASE_URL });
   const prodDb = new Pool({ connectionString: PROD_DATABASE_URL });
 

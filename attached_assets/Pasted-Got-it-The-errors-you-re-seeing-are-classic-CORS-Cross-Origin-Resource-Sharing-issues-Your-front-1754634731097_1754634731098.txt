@@ -1,0 +1,84 @@
+Got it! The errors you’re seeing are classic CORS (Cross-Origin Resource Sharing) issues. Your frontend (hosted on one Vercel domain) is trying to fetch API data from your backend (hosted on a different Vercel domain), but the backend isn’t allowing those cross-origin requests.
+
+What’s Happening?
+Browser blocks the request because the backend response does not include the Access-Control-Allow-Origin header allowing your frontend domain.
+
+Preflight OPTIONS request is failing due to missing CORS headers.
+
+So, your frontend can’t reach the backend API.
+
+Step-by-step to fix CORS on your backend (Node/Express)
+You need to add CORS middleware to your backend API to allow requests from your frontend domain.
+
+1. Install CORS middleware
+If you haven’t already installed it, in your backend project run:
+
+bash
+Copy
+npm install cors
+2. Update your backend Express app
+In your main backend file (e.g., server.ts or index.ts), add this:
+
+typescript
+Copy
+import cors from 'cors';
+
+// List your frontend URL(s) here — restrict for security
+const allowedOrigins = [
+  'https://workspace-fe8jo9ncd-jeremys-projects-0f68a4ab.vercel.app',
+  // add any other frontend URLs if needed
+];
+
+// Enable CORS with dynamic origin check
+app.use(cors({
+  origin: function(origin, callback){
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true // if you need cookies/auth headers
+}));
+This setup:
+
+Allows only your frontend URL to call the backend
+
+Properly sets CORS headers in responses
+
+3. Restart and redeploy your backend
+Save changes
+
+Push to your repo
+
+Trigger a new deployment on Vercel
+
+4. Double-check frontend fetch calls
+Make sure your frontend fetch calls include credentials if you need sessions/cookies:
+
+js
+Copy
+fetch('https://admin-backend-3wiwh9nkc-jeremys-projects-0f68a4ab.vercel.app/api/public/vehicles', {
+  credentials: 'include',  // if your backend uses cookies/session
+  // other options...
+});
+5. Optional: Debugging CORS
+Check response headers in browser DevTools Network tab
+
+You should see:
+
+yaml
+Copy
+Access-Control-Allow-Origin: https://workspace-fe8jo9ncd-jeremys-projects-0f68a4ab.vercel.app
+Access-Control-Allow-Credentials: true
+Summary
+Add and configure CORS middleware in your backend Express app.
+
+Allow only your frontend domain(s).
+
+Redeploy backend.
+
+Confirm frontend fetch requests are correct.
+

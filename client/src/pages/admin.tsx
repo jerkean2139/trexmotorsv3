@@ -26,25 +26,18 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Check if this is a static deployment
-  const isStaticDeployment = typeof window !== 'undefined' && !window.location.href.includes('localhost') && !window.location.href.includes('replit.dev') && !window.location.href.includes('127.0.0.1');
-
-  // Check authentication status
+  // Check authentication status - Railway deploys frontend/backend together, so use relative URLs
   const { data: authData, refetch: refetchAuth } = useQuery({
     queryKey: ["/api/auth/check"],
     queryFn: async () => {
-      // Skip auth check for static deployments
-      if (typeof window !== 'undefined' && !window.location.href.includes('localhost') && !window.location.href.includes('replit.dev') && !window.location.href.includes('127.0.0.1')) {
-        return { isAuthenticated: false };
-      }
-      
-      const response = await fetch("/api/auth/check", { credentials: 'include' });
+      const response = await fetch('/api/auth/check', { 
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
       if (!response.ok) {
         return { isAuthenticated: false };
       }
-      const result = await response.json();
-      console.log("Auth check result:", result);
-      return result;
+      return response.json();
     },
     refetchInterval: false,
     refetchOnWindowFocus: false,
@@ -52,21 +45,24 @@ export default function Admin() {
 
   // Get vehicles for admin
   const { data: vehiclesData, isLoading } = useQuery({
-    queryKey: ["/api/vehicles"],
+    queryKey: ["/api/auth/vehicles"],
     enabled: isAuthenticated || authData?.isAuthenticated,
+    queryFn: async () => {
+      const response = await fetch('/api/auth/vehicles', { 
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('Failed to fetch vehicles');
+      return response.json();
+    }
   });
 
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      // Skip login for static deployments
-      if (typeof window !== 'undefined' && !window.location.href.includes('localhost') && !window.location.href.includes('replit.dev') && !window.location.href.includes('127.0.0.1')) {
-        throw new Error('Admin login not available in static deployment');
-      }
-      
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch('/api/auth/login', {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(credentials)
       });
@@ -80,21 +76,22 @@ export default function Admin() {
       setIsAuthenticated(true);
       toast({ title: "Success", description: "Logged in successfully" });
       await refetchAuth();
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/vehicles"] });
     },
     onError: (error) => {
       console.error("Login error:", error);
-      const errorMessage = isStaticDeployment 
-        ? "Admin login is only available in development environment"
-        : "Invalid credentials";
-      toast({ title: "Error", description: errorMessage, variant: "destructive" });
+      toast({ title: "Error", description: "Invalid credentials", variant: "destructive" });
     },
   });
 
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", "/api/auth/logout");
+      return fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
     },
     onSuccess: () => {
       setIsAuthenticated(false);
@@ -106,11 +103,11 @@ export default function Admin() {
   // Delete vehicle mutation
   const deleteVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `/api/vehicles/${id}`);
+      return apiRequest("DELETE", `/api/auth/vehicles/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/vehicles"] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete vehicle", variant: "destructive" });
@@ -123,7 +120,8 @@ export default function Admin() {
   };
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+  logoutMutation.mutate();
+  window.location.href = "/";
   };
 
   const handleDeleteVehicle = (id: string) => {
@@ -142,6 +140,7 @@ export default function Admin() {
 
   // Filter vehicles based on search and filters
   const vehicles = (vehiclesData as { vehicles?: Vehicle[] })?.vehicles || [];
+  console.log("vehicles:", vehicles);
   const filteredVehicles = vehicles.filter((vehicle: Vehicle) => {
     const matchesSearch = searchQuery === "" || 
       `${vehicle.make} ${vehicle.model} ${vehicle.vin} ${vehicle.stockNumber}`.toLowerCase().includes(searchQuery.toLowerCase());
@@ -170,24 +169,16 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isStaticDeployment && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                <p className="text-sm text-yellow-800">
-                  <strong>Notice:</strong> Admin functionality is only available in the development environment. 
-                  This static deployment provides read-only access to the vehicle inventory.
-                </p>
-              </div>
-            )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
                   type="text"
+                  data-testid="input-username"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                   required
-                  disabled={isStaticDeployment}
                 />
               </div>
               <div>
@@ -195,18 +186,19 @@ export default function Admin() {
                 <Input
                   id="password"
                   type="password"
+                  data-testid="input-password"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                   required
-                  disabled={isStaticDeployment}
                 />
               </div>
               <Button 
                 type="submit" 
+                data-testid="button-login"
                 className="w-full bg-trex-green hover:bg-trex-green text-white"
-                disabled={loginMutation.isPending || isStaticDeployment}
+                disabled={loginMutation.isPending}
               >
-                {loginMutation.isPending ? "Logging in..." : isStaticDeployment ? "Admin Not Available" : "Login"}
+                {loginMutation.isPending ? "Logging in..." : "Login"}
               </Button>
             </form>
           </CardContent>
