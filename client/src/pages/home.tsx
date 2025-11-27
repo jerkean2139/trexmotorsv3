@@ -25,25 +25,6 @@ export default function Home() {
   const { data: vehiclesData, isLoading } = useQuery<{vehicles: Vehicle[], totalCount: number}>({
     queryKey: ["/api/vehicles", filters],
     queryFn: async ({ queryKey }) => {
-      // Try admin backend first, fall back to embedded data
-      if (typeof window !== 'undefined' && !window.location.href.includes('localhost') && !window.location.href.includes('replit.dev') && !window.location.href.includes('127.0.0.1')) {
-        try {
-          const headers: Record<string, string> = {};
-          // Add protection bypass header for production  
-          if (import.meta.env.VITE_VERCEL_BYPASS_TOKEN) {
-            headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN;
-          }
-          const response = await fetch('https://admin-backend-lyart.vercel.app/api/public/vehicles', { headers });
-          if (response.ok) {
-            console.log("Using live data from admin backend");
-            return await response.json();
-          }
-        } catch (error) {
-          console.log("Admin backend unavailable, using embedded vehicle data");
-        }
-        return getVehicles(queryKey[1]);
-      }
-      
       try {
         const [url, params] = queryKey;
         const searchParams = new URLSearchParams();
@@ -58,8 +39,8 @@ export default function Home() {
         if (!response.ok) throw new Error("Failed to fetch vehicles");
         return response.json();
       } catch (error) {
-        // Fallback to real vehicle data for static deployment
-        console.log("API unavailable, using real vehicle data");
+        // Fallback to embedded vehicle data if API unavailable
+        console.log("API unavailable, using embedded vehicle data");
         return getVehicles(queryKey[1]);
       }
     },
@@ -68,32 +49,13 @@ export default function Home() {
   const { data: featuredVehicles, isLoading: featuredLoading } = useQuery<Vehicle[]>({
     queryKey: ["/api/vehicles/featured"],
     queryFn: async () => {
-      // Try admin backend first, fall back to embedded data
-      if (typeof window !== 'undefined' && !window.location.href.includes('localhost') && !window.location.href.includes('replit.dev') && !window.location.href.includes('127.0.0.1')) {
-        try {
-          const headers: Record<string, string> = {};
-          // Add protection bypass header for production  
-          if (import.meta.env.VITE_VERCEL_BYPASS_TOKEN) {
-            headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN;
-          }
-          const response = await fetch('https://admin-backend-lyart.vercel.app/api/public/featured', { headers });
-          if (response.ok) {
-            console.log("Using live featured data from admin backend");
-            return await response.json();
-          }
-        } catch (error) {
-          console.log("Admin backend unavailable, using embedded featured vehicle data");
-        }
-        return getFeaturedVehicles();
-      }
-      
       try {
-        const response = await fetch("/api/featured");
+        const response = await fetch("/api/vehicles/featured");
         if (!response.ok) throw new Error("Failed to fetch featured vehicles");
         return response.json();
       } catch (error) {
-        // Fallback to real vehicle data for static deployment  
-        console.log("Featured API unavailable, using real vehicle data");
+        // Fallback to embedded vehicle data if API unavailable
+        console.log("Featured API unavailable, using embedded vehicle data");
         return getFeaturedVehicles();
       }
     },

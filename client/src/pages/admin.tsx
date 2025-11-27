@@ -26,56 +26,18 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Check if this is a static deployment - but allow admin if explicitly enabled
-  const isDevelopment = typeof window !== 'undefined' && (window.location.href.includes('localhost') || window.location.href.includes('replit.dev') || window.location.href.includes('127.0.0.1'));
-  const isAdminEnabled = import.meta.env.VITE_ENABLE_ADMIN === 'true';
-  const isStaticDeployment = !isDevelopment && !isAdminEnabled;
-  
-  // Force debug logging for Netlify troubleshooting
-  console.log("🔍 Admin environment debug:", {
-    isDevelopment,
-    isAdminEnabled,
-    isStaticDeployment,
-    VITE_ENABLE_ADMIN: import.meta.env.VITE_ENABLE_ADMIN,
-    windowLocation: window.location.href,
-    allEnvVars: import.meta.env
-  });
-  
-  // Additional debug info
-  console.log("🌍 Current environment:", {
-    isDev: import.meta.env.DEV,
-    isProd: import.meta.env.PROD,
-    mode: import.meta.env.MODE
-  });
-
-  // Check authentication status
+  // Check authentication status - Railway deploys frontend/backend together, so use relative URLs
   const { data: authData, refetch: refetchAuth } = useQuery({
     queryKey: ["/api/auth/check"],
     queryFn: async () => {
-      // Skip auth check only for static deployments (production without admin enabled)
-      if (isStaticDeployment) {
-        return { isAuthenticated: false };
-      }
-      // blank comment to commit changes
-      // Use backend URL directly with protection bypass header
-      const baseUrl = isDevelopment ? '' : 'https://admin-backend-lyart.vercel.app';
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      
-      // Add protection bypass header for production
-      if (!isDevelopment) {
-        headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN || '';
-      }
-      
-      const response = await fetch(`${baseUrl}/api/auth/check`, { 
+      const response = await fetch('/api/auth/check', { 
         credentials: 'include',
-        headers 
+        headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) {
         return { isAuthenticated: false };
       }
-      const result = await response.json();
-      console.log("Auth check result:", result);
-      return result;
+      return response.json();
     },
     refetchInterval: false,
     refetchOnWindowFocus: false,
@@ -86,12 +48,10 @@ export default function Admin() {
     queryKey: ["/api/auth/vehicles"],
     enabled: isAuthenticated || authData?.isAuthenticated,
     queryFn: async () => {
-      const baseUrl = isDevelopment ? '' : 'https://admin-backend-lyart.vercel.app';
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (!isDevelopment) {
-        headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN || '';
-      }
-      const response = await fetch(`${baseUrl}/api/auth/vehicles`, { headers });
+      const response = await fetch('/api/auth/vehicles', { 
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
       if (!response.ok) throw new Error('Failed to fetch vehicles');
       return response.json();
     }
@@ -100,23 +60,9 @@ export default function Admin() {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      // Skip login for static deployments (production without admin enabled)
-      if (isStaticDeployment) {
-        throw new Error('Admin login not available in static deployment');
-      }
-      
-      // Use backend URL directly with protection bypass header
-      const baseUrl = isDevelopment ? '' : 'https://admin-backend-lyart.vercel.app';
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      
-      // Add protection bypass header for production
-      if (!isDevelopment) {
-        headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN || '';
-      }
-      
-      const response = await fetch(`${baseUrl}/api/auth/login`, {
+      const response = await fetch('/api/auth/login', {
         method: "POST",
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(credentials)
       });
@@ -134,27 +80,16 @@ export default function Admin() {
     },
     onError: (error) => {
       console.error("Login error:", error);
-      const errorMessage = isStaticDeployment 
-        ? "Admin login is only available in development environment"
-        : "Invalid credentials";
-      toast({ title: "Error", description: errorMessage, variant: "destructive" });
+      toast({ title: "Error", description: "Invalid credentials", variant: "destructive" });
     },
   });
 
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const baseUrl = isDevelopment ? '' : 'https://admin-backend-lyart.vercel.app';
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      
-      // Add protection bypass header for production
-      if (!isDevelopment) {
-        headers['x-vercel-protection-bypass'] = import.meta.env.VITE_VERCEL_BYPASS_TOKEN || '';
-      }
-      
-      return fetch(`${baseUrl}/api/auth/logout`, {
+      return fetch('/api/auth/logout', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
     },
@@ -168,7 +103,7 @@ export default function Admin() {
   // Delete vehicle mutation
   const deleteVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `https://admin-backend-lyart.vercel.app/api/auth/vehicles/${id}`);
+      return apiRequest("DELETE", `/api/auth/vehicles/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
@@ -234,40 +169,16 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isStaticDeployment && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                <p className="text-sm text-yellow-800">
-                  <strong>Notice:</strong> Admin functionality is only available in the development environment. 
-                  This static deployment provides read-only access to the vehicle inventory.
-                </p>
-              </div>
-            )}
-            {!isDevelopment && isAdminEnabled && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-800">
-                  <strong>Production Admin Mode:</strong> Admin functionality enabled for production environment.
-                </p>
-              </div>
-            )}
-            
-            {/* Debug info for troubleshooting */}
-            {!isDevelopment && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-xs">
-                <p><strong>Debug:</strong> VITE_ENABLE_ADMIN = {import.meta.env.VITE_ENABLE_ADMIN}</p>
-                <p>isAdminEnabled = {isAdminEnabled ? 'true' : 'false'}</p>
-                <p>isStaticDeployment = {isStaticDeployment ? 'true' : 'false'}</p>
-              </div>
-            )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
                   type="text"
+                  data-testid="input-username"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
                   required
-                  disabled={isStaticDeployment}
                 />
               </div>
               <div>
@@ -275,18 +186,19 @@ export default function Admin() {
                 <Input
                   id="password"
                   type="password"
+                  data-testid="input-password"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                   required
-                  disabled={isStaticDeployment}
                 />
               </div>
               <Button 
                 type="submit" 
+                data-testid="button-login"
                 className="w-full bg-trex-green hover:bg-trex-green text-white"
-                disabled={loginMutation.isPending || isStaticDeployment}
+                disabled={loginMutation.isPending}
               >
-                {loginMutation.isPending ? "Logging in..." : isStaticDeployment ? "Admin Not Available" : "Login"}
+                {loginMutation.isPending ? "Logging in..." : "Login"}
               </Button>
             </form>
           </CardContent>
