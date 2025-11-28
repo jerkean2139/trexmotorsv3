@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, Car, Calculator, Users, Phone, Settings } from "lucide-react";
 
 export default function Header() {
   const [location] = useLocation();
@@ -15,103 +16,127 @@ export default function Header() {
     setMobileMenuOpen(false);
   };
 
+  const navItems = [
+    { label: "Inventory", action: () => scrollToSection('inventory'), icon: Car },
+    { label: "Financing", href: "/financing", icon: Calculator },
+    { label: "About Us", action: () => scrollToSection('about'), icon: Users },
+    { label: "Contact", action: () => scrollToSection('contact'), icon: Phone },
+  ];
+
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-[250px]">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <img 
-                src="https://storage.googleapis.com/msgsndr/QjiQRR74D1pxPF7I8fcC/media/68042afc29d629c59c352a2b.png" 
-                alt="T-Rex Motors Logo" 
-                className="w-[250px] h-[250px] object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = document.createElement('div');
-                  fallback.innerHTML = '<div class="flex items-center text-3xl font-bold text-green-600">🦖 T-Rex Motors</div>';
-                  target.parentNode?.appendChild(fallback);
-                }}
-              />
-            </Link>
-          </div>
+          <Link href="/" className="flex items-center group">
+            <img 
+              src="https://storage.googleapis.com/msgsndr/QjiQRR74D1pxPF7I8fcC/media/68042afc29d629c59c352a2b.png" 
+              alt="T-Rex Motors Logo" 
+              className="h-12 md:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <button 
-                onClick={() => scrollToSection('inventory')}
-                className="text-gray-900 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Inventory
-              </button>
-              <Link href="/financing">
-                <button className="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">
-                  Financing
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              item.href ? (
+                <Link key={item.label} href={item.href}>
+                  <button className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors duration-200 rounded-lg hover:bg-emerald-50 group">
+                    {item.label}
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
+                  </button>
+                </Link>
+              ) : (
+                <button 
+                  key={item.label}
+                  onClick={item.action}
+                  className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors duration-200 rounded-lg hover:bg-emerald-50 group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
                 </button>
-              </Link>
-              <button 
-                onClick={() => scrollToSection('about')}
-                className="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors"
-              >
-                About Us
-              </button>
-              <button 
-                onClick={() => scrollToSection('contact')}
-                className="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors"
-              >
-                Contact
-              </button>
-              {/* Admin link */}
-              <Link href="/admin">
-                <button className="text-gray-600 hover:text-trex-green px-3 py-2 text-sm font-medium transition-colors">
-                  Admin
-                </button>
-              </Link>
-
-            </div>
+              )
+            ))}
+            <Link href="/admin">
+              <Button variant="ghost" size="sm" className="ml-2 text-gray-500 hover:text-gray-700">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </Link>
           </nav>
+
+          {/* CTA Button - Desktop */}
+          <div className="hidden md:block">
+            <Button 
+              onClick={() => scrollToSection('inventory')}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all duration-300"
+            >
+              Browse Inventory
+            </Button>
+          </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
-                  <i className="fas fa-bars text-xl"></i>
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                  <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent>
-                <div className="flex flex-col space-y-4 mt-8">
-                  <button 
-                    onClick={() => scrollToSection('inventory')}
-                    className="text-gray-900 block px-3 py-2 text-base font-medium text-left"
-                  >
-                    Inventory
-                  </button>
-                  <Link href="/financing">
-                    <button className="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium text-left">
-                      Financing
-                    </button>
-                  </Link>
-                  <button 
-                    onClick={() => scrollToSection('about')}
-                    className="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium text-left"
-                  >
-                    About Us
-                  </button>
-                  <button 
-                    onClick={() => scrollToSection('contact')}
-                    className="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium text-left"
-                  >
-                    Contact
-                  </button>
-                  {/* Admin link */}
-                  <Link href="/admin">
-                    <button className="text-gray-600 hover:text-trex-green block px-3 py-2 text-base font-medium text-left">
-                      Admin
-                    </button>
-                  </Link>
+              <SheetContent className="w-80">
+                <div className="flex flex-col mt-8">
+                  <div className="flex items-center gap-3 mb-8 pb-6 border-b">
+                    <img 
+                      src="https://storage.googleapis.com/msgsndr/QjiQRR74D1pxPF7I8fcC/media/68042afc29d629c59c352a2b.png" 
+                      alt="T-Rex Motors" 
+                      className="h-10 w-auto"
+                    />
+                    <span className="font-semibold text-gray-900">T-Rex Motors</span>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    {navItems.map((item) => {
+                      const Icon = item.icon;
+                      return item.href ? (
+                        <Link key={item.label} href={item.href}>
+                          <button 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          >
+                            <Icon className="h-5 w-5" />
+                            {item.label}
+                          </button>
+                        </Link>
+                      ) : (
+                        <button 
+                          key={item.label}
+                          onClick={() => {
+                            item.action?.();
+                            setMobileMenuOpen(false);
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                        >
+                          <Icon className="h-5 w-5" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t">
+                    <Button 
+                      onClick={() => {
+                        scrollToSection('inventory');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      Browse Inventory
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

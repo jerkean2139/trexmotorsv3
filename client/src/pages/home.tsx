@@ -6,6 +6,7 @@ import SearchFilters from "@/components/SearchFilters";
 import VehicleCard from "@/components/VehicleCard";
 import VehicleDetail from "@/components/VehicleDetail";
 import { Button } from "@/components/ui/button";
+import { Search, Calculator, Award, Handshake, DollarSign, MapPin, Phone, Mail, Clock, Car, ArrowRight } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 import { getVehicles, getFeaturedVehicles } from "@/lib/exportedVehicles";
 
@@ -74,39 +75,53 @@ export default function Home() {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative bg-gray-900 text-white">
-        <div className="absolute inset-0 overflow-hidden">
+      <section className="relative bg-gray-900 text-white overflow-hidden">
+        <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080" 
             alt="Classic American muscle car - representing T-Rex Motors automotive excellence" 
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/90 to-gray-900/70" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-              Quality Used Cars in <span className="text-trex-green">Richmond</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+          <div className="max-w-2xl">
+            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-emerald-600/20 text-emerald-400 rounded-full border border-emerald-600/30">
+              Trusted Since 2008
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              Quality Used Cars in <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Richmond</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
-              Discover your next vehicle from our extensive inventory of quality pre-owned cars, trucks, and SUVs. 
-              Competitive pricing, financing available.
+            <p className="text-lg lg:text-xl mb-8 text-gray-300 leading-relaxed">
+              Discover your next vehicle from our extensive inventory of quality pre-owned cars, trucks, and SUVs. Competitive pricing with flexible financing options.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
-                className="bg-trex-green hover:bg-trex-green text-white px-8 py-3 text-lg font-semibold"
+                size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all duration-300"
                 onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <i className="fas fa-search mr-2"></i>Browse Inventory
+                <Search className="mr-2 h-5 w-5" />
+                Browse Inventory
               </Button>
               <Button 
+                size="lg"
                 variant="outline"
-                className="border-2 border-white bg-white text-black hover:bg-white hover:text-trex-green px-8 py-3 text-lg font-semibold"
+                className="border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white hover:text-gray-900 px-8 py-6 text-lg font-semibold transition-all duration-300"
                 onClick={() => window.location.href = '/financing'}
               >
-                <i className="fas fa-calculator mr-2"></i>Get Financing
+                <Calculator className="mr-2 h-5 w-5" />
+                Get Financing
               </Button>
             </div>
           </div>
+        </div>
+        
+        {/* Decorative bottom wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path d="M0 100V50C240 16.67 480 0 720 0C960 0 1200 16.67 1440 50V100H0Z" fill="#f9fafb"/>
+          </svg>
         </div>
       </section>
 
@@ -178,42 +193,45 @@ export default function Home() {
       </section>
 
       {/* About Us Section */}
-      <section id="about" className="py-16 bg-white">
+      <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">About T-Rex Motors</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-emerald-100 text-emerald-700 rounded-full">
+              Why Choose Us
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">About T-Rex Motors</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Your trusted partner for quality used cars in Richmond, IN since 2008
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-trex-green text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-award text-2xl"></i>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Award className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">17+ Years of Excellence</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">17+ Years of Excellence</h3>
+              <p className="text-gray-600 leading-relaxed">
                 Serving the Richmond community with quality vehicles and exceptional customer service since 2008.
               </p>
             </div>
             
-            <div className="text-center">
-              <div className="bg-trex-green text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-handshake text-2xl"></i>
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Handshake className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Trusted Service</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Trusted Service</h3>
+              <p className="text-gray-600 leading-relaxed">
                 Every vehicle undergoes thorough inspection and comes with our commitment to quality and reliability.
               </p>
             </div>
             
-            <div className="text-center">
-              <div className="bg-trex-green text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <i className="fas fa-dollar-sign text-2xl"></i>
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <DollarSign className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Competitive Pricing</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Competitive Pricing</h3>
+              <p className="text-gray-600 leading-relaxed">
                 Fair, transparent pricing with flexible financing options to help you drive away happy.
               </p>
             </div>
@@ -222,49 +240,60 @@ export default function Home() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-16 bg-gray-50">
+      <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Visit T-Rex Motors</h2>
-            <p className="text-xl text-gray-600">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-emerald-100 text-emerald-700 rounded-full">
+              Get In Touch
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Visit T-Rex Motors</h2>
+            <p className="text-lg text-gray-600">
               Stop by our showroom or get in touch to find your perfect vehicle
             </p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Contact Information</h3>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <i className="fas fa-map-marker-alt text-trex-green text-xl mr-4 mt-1"></i>
+            <div className="bg-white rounded-2xl p-8 shadow-lg">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Contact Information</h3>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-6 w-6 text-emerald-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Address</p>
+                    <p className="font-medium text-gray-900">Address</p>
                     <p className="text-gray-600">1300 South 9th St<br />Richmond, IN 47374</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center">
-                  <i className="fas fa-phone text-trex-green text-xl mr-4"></i>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="h-6 w-6 text-emerald-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Phone</p>
-                    <p className="text-gray-600">(765) 238-2887</p>
+                    <p className="font-medium text-gray-900">Phone</p>
+                    <a href="tel:7652382887" className="text-gray-600 hover:text-emerald-600 transition-colors">(765) 238-2887</a>
                   </div>
                 </div>
                 
-                <div className="flex items-center">
-                  <i className="fas fa-envelope text-trex-green text-xl mr-4"></i>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="h-6 w-6 text-emerald-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Email</p>
-                    <p className="text-gray-600">info@trexmotors.com</p>
+                    <p className="font-medium text-gray-900">Email</p>
+                    <a href="mailto:info@trexmotors.com" className="text-gray-600 hover:text-emerald-600 transition-colors">info@trexmotors.com</a>
                   </div>
                 </div>
                 
-                <div className="flex items-start">
-                  <i className="fas fa-clock text-trex-green text-xl mr-4 mt-1"></i>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock className="h-6 w-6 text-emerald-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900">Hours</p>
+                    <p className="font-medium text-gray-900">Hours</p>
                     <p className="text-gray-600">
-                      Monday - Saturday: 9AM - 7PM<br />
+                      Mon - Sat: 9AM - 7PM<br />
                       Sunday: 12PM - 5PM
                     </p>
                   </div>
@@ -272,27 +301,43 @@ export default function Home() {
               </div>
             </div>
             
-            <div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
+            <div className="bg-white rounded-2xl p-8 shadow-lg">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
               <div className="space-y-4">
                 <Button 
-                  className="w-full bg-trex-green hover:bg-trex-green text-white py-3"
+                  size="lg"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 transition-all duration-300"
                   onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  <i className="fas fa-car mr-2"></i>Browse Our Inventory
+                  <Car className="mr-2 h-5 w-5" />
+                  Browse Our Inventory
+                  <ArrowRight className="ml-auto h-5 w-5" />
                 </Button>
                 <Button 
-                  className="w-full bg-white border-2 border-trex-green text-trex-green hover:bg-trex-green hover:text-white py-3"
+                  size="lg"
+                  variant="outline"
+                  className="w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-300"
                   onClick={() => window.location.href = '/financing'}
                 >
-                  <i className="fas fa-calculator mr-2"></i>Apply for Financing
+                  <Calculator className="mr-2 h-5 w-5" />
+                  Apply for Financing
+                  <ArrowRight className="ml-auto h-5 w-5" />
                 </Button>
                 <Button 
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3"
-                  onClick={() => window.open('tel:(765) 238-2887')}
+                  size="lg"
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white transition-all duration-300"
+                  onClick={() => window.open('tel:7652382887')}
                 >
-                  <i className="fas fa-phone mr-2"></i>Call Now
+                  <Phone className="mr-2 h-5 w-5" />
+                  Call Now: (765) 238-2887
                 </Button>
+              </div>
+              
+              <div className="mt-8 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                <p className="text-sm text-emerald-800 text-center">
+                  <span className="font-semibold">Ready to find your next car?</span><br />
+                  Visit us today for a test drive!
+                </p>
               </div>
             </div>
           </div>
