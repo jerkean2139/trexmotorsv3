@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminVehicleForm from "@/components/AdminVehicleForm";
-import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag } from "lucide-react";
+import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -18,14 +20,25 @@ import type { Vehicle } from "@shared/schema";
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [loginForm, setLoginForm] = useState({ username: "admin", password: "trex2025!" });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"tiles" | "table">(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('adminViewMode') as "tiles" | "table") || "tiles";
+    }
+    return "tiles";
+  });
+  const [editingPrice, setEditingPrice] = useState<{ id: string; value: string } | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Persist view mode preference
+  useEffect(() => {
+    localStorage.setItem('adminViewMode', viewMode);
+  }, [viewMode]);
 
   // Check authentication status - Railway deploys frontend/backend together, so use relative URLs
   const { data: authData, refetch: refetchAuth } = useQuery({
@@ -114,6 +127,47 @@ export default function Admin() {
       toast({ title: "Error", description: "Failed to delete vehicle", variant: "destructive" });
     },
   });
+
+  // Quick inline update mutation
+  const inlineUpdateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Vehicle> }) => {
+      return apiRequest("PUT", `/api/vehicles/${id}`, updates);
+    },
+    onSuccess: (_, variables) => {
+      const fieldName = Object.keys(variables.updates)[0];
+      toast({ title: "Updated", description: `${fieldName} updated successfully` });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update vehicle", variant: "destructive" });
+    },
+  });
+
+  // Handle inline status change
+  const handleStatusChange = (vehicleId: string, newStatus: string) => {
+    inlineUpdateMutation.mutate({ id: vehicleId, updates: { status: newStatus } });
+  };
+
+  // Handle inline price change
+  const handlePriceUpdate = (vehicleId: string) => {
+    if (editingPrice && editingPrice.id === vehicleId) {
+      const numericPrice = editingPrice.value.replace(/[^0-9.]/g, '');
+      if (numericPrice) {
+        inlineUpdateMutation.mutate({ id: vehicleId, updates: { price: numericPrice } });
+      }
+      setEditingPrice(null);
+    }
+  };
+
+  // Handle inline featured toggle
+  const handleFeaturedToggle = (vehicleId: string, currentValue: boolean | null) => {
+    inlineUpdateMutation.mutate({ id: vehicleId, updates: { isFeatured: !currentValue } });
+  };
+
+  // Handle inline status banner change
+  const handleStatusBannerChange = (vehicleId: string, newBanner: string | null) => {
+    inlineUpdateMutation.mutate({ id: vehicleId, updates: { statusBanner: newBanner } });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,9 +381,33 @@ export default function Admin() {
         {/* Search & Filter */}
         <Card className="border-0 shadow-md mb-6">
           <CardContent className="p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="h-5 w-5 text-gray-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Search & Filter</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-gray-500" />
+                <h3 className="text-lg font-semibold text-gray-900">Search & Filter</h3>
+              </div>
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <Button
+                  size="sm"
+                  variant={viewMode === "tiles" ? "default" : "ghost"}
+                  onClick={() => setViewMode("tiles")}
+                  className={`h-8 px-3 ${viewMode === "tiles" ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  data-testid="button-view-tiles"
+                >
+                  <LayoutGrid className="h-4 w-4 mr-1.5" />
+                  Tiles
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === "table" ? "default" : "ghost"}
+                  onClick={() => setViewMode("table")}
+                  className={`h-8 px-3 ${viewMode === "table" ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  data-testid="button-view-table"
+                >
+                  <TableIcon className="h-4 w-4 mr-1.5" />
+                  Table
+                </Button>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
@@ -381,14 +459,172 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        {/* Vehicle Cards Grid */}
+        {/* Vehicle Display - Tiles or Table */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 bg-white rounded-xl animate-pulse shadow-md"></div>
-            ))}
-          </div>
+          viewMode === "tiles" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-80 bg-white rounded-xl animate-pulse shadow-md"></div>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-0 shadow-md">
+              <div className="p-8 animate-pulse">
+                <div className="h-8 bg-gray-200 rounded w-full mb-4"></div>
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-12 bg-gray-100 rounded w-full mb-2"></div>
+                ))}
+              </div>
+            </Card>
+          )
+        ) : viewMode === "table" ? (
+          /* Table View */
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50 hover:bg-gray-50">
+                    <TableHead className="font-semibold text-gray-700 w-[50px]">Image</TableHead>
+                    <TableHead className="font-semibold text-gray-700">Vehicle</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[130px]">Price</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[100px]">Mileage</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[120px]">Status</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[130px]">Banner</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[80px] text-center">Featured</TableHead>
+                    <TableHead className="font-semibold text-gray-700 w-[140px] text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredVehicles.map((vehicle: Vehicle) => (
+                    <TableRow key={vehicle.id} className="hover:bg-gray-50" data-testid={`table-row-${vehicle.id}`}>
+                      <TableCell className="py-2">
+                        {vehicle.images?.[0] ? (
+                          <img 
+                            src={vehicle.images[0]} 
+                            alt={`${vehicle.make} ${vehicle.model}`}
+                            className="w-12 h-10 object-cover rounded-md"
+                          />
+                        ) : (
+                          <div className="w-12 h-10 bg-gray-100 rounded-md flex items-center justify-center">
+                            <Car className="h-5 w-5 text-gray-300" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-gray-900">{vehicle.year} {vehicle.make} {vehicle.model}</p>
+                          <p className="text-xs text-gray-500">Stock: {vehicle.stockNumber}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {editingPrice?.id === vehicle.id ? (
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-4 w-4 text-gray-400" />
+                            <Input
+                              type="text"
+                              value={editingPrice.value}
+                              onChange={(e) => setEditingPrice({ id: vehicle.id, value: e.target.value })}
+                              onBlur={() => handlePriceUpdate(vehicle.id)}
+                              onKeyDown={(e) => e.key === 'Enter' && handlePriceUpdate(vehicle.id)}
+                              className="h-8 w-24 text-sm"
+                              autoFocus
+                              data-testid={`input-price-${vehicle.id}`}
+                            />
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setEditingPrice({ id: vehicle.id, value: vehicle.price })}
+                            className="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                            data-testid={`button-edit-price-${vehicle.id}`}
+                          >
+                            {formatPrice(vehicle.price)}
+                          </button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {vehicle.mileage?.toLocaleString()} mi
+                      </TableCell>
+                      <TableCell>
+                        <Select 
+                          value={vehicle.status} 
+                          onValueChange={(value) => handleStatusChange(vehicle.id, value)}
+                        >
+                          <SelectTrigger 
+                            className={`h-8 w-[110px] text-xs font-medium border-0 ${
+                              vehicle.status === 'available' ? 'bg-emerald-100 text-emerald-700' :
+                              vehicle.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}
+                            data-testid={`select-status-${vehicle.id}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="available">Available</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="sold">Sold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select 
+                          value={vehicle.statusBanner || "none"} 
+                          onValueChange={(value) => handleStatusBannerChange(vehicle.id, value === "none" ? null : value)}
+                        >
+                          <SelectTrigger 
+                            className="h-8 w-[120px] text-xs border-gray-200"
+                            data-testid={`select-banner-${vehicle.id}`}
+                          >
+                            <SelectValue placeholder="No banner" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No Banner</SelectItem>
+                            <SelectItem value="new">New</SelectItem>
+                            <SelectItem value="low-miles">Low Miles</SelectItem>
+                            <SelectItem value="local-trade">Local Trade</SelectItem>
+                            <SelectItem value="just-reduced">Just Reduced</SelectItem>
+                            <SelectItem value="sold">Sold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Switch
+                          checked={vehicle.isFeatured || false}
+                          onCheckedChange={() => handleFeaturedToggle(vehicle.id, vehicle.isFeatured)}
+                          className="data-[state=checked]:bg-emerald-600"
+                          data-testid={`switch-featured-${vehicle.id}`}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-gray-500 hover:text-emerald-600"
+                            onClick={() => setEditingVehicle(vehicle)}
+                            data-testid={`button-edit-${vehicle.id}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                            onClick={() => handleDeleteVehicle(vehicle.id)}
+                            data-testid={`button-delete-${vehicle.id}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
         ) : (
+          /* Tiles View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredVehicles.map((vehicle: Vehicle) => (
               <Card key={vehicle.id} className="group overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
