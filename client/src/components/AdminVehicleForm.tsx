@@ -10,6 +10,22 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Vehicle, InsertVehicle } from "@shared/schema";
 
+const EXTERIOR_COLORS = [
+  "Black", "White", "Silver", "Gray", "Red", "Blue", "Navy Blue", "Dark Blue",
+  "Green", "Dark Green", "Brown", "Tan", "Beige", "Gold", "Yellow", "Orange",
+  "Purple", "Burgundy", "Maroon", "Charcoal", "Pearl White", "Champagne",
+  "Bronze", "Copper", "Metallic Gray", "Metallic Blue", "Metallic Red"
+];
+
+const INTERIOR_COLORS = [
+  "Black", "Gray", "Tan", "Beige", "Brown", "Cream", "White", "Red",
+  "Burgundy", "Blue", "Navy", "Charcoal", "Light Gray", "Dark Gray",
+  "Saddle Brown", "Camel", "Ivory", "Ebony", "Graphite"
+];
+
+const inputStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors";
+const selectTriggerStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors";
+
 interface AdminVehicleFormProps {
   vehicle?: Vehicle | null;
   onSuccess: () => void;
@@ -100,25 +116,27 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="make">Make</Label>
+          <Label htmlFor="make" className="text-sm font-medium text-gray-700">Make</Label>
           <Input
             id="make"
             value={formData.make}
             onChange={(e) => handleChange('make', e.target.value)}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="model">Model</Label>
+          <Label htmlFor="model" className="text-sm font-medium text-gray-700">Model</Label>
           <Input
             id="model"
             value={formData.model}
             onChange={(e) => handleChange('model', e.target.value)}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="year">Year</Label>
+          <Label htmlFor="year" className="text-sm font-medium text-gray-700">Year</Label>
           <Input
             id="year"
             type="number"
@@ -126,59 +144,72 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
             max={new Date().getFullYear() + 1}
             value={formData.year}
             onChange={(e) => handleChange('year', parseInt(e.target.value))}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="trim">Trim</Label>
+          <Label htmlFor="trim" className="text-sm font-medium text-gray-700">Trim</Label>
           <Input
             id="trim"
             value={formData.trim || ''}
             onChange={(e) => handleChange('trim', e.target.value)}
+            className={inputStyle}
           />
         </div>
         <div>
-          <Label htmlFor="price">Price</Label>
+          <Label htmlFor="price" className="text-sm font-medium text-gray-700">Price</Label>
           <Input
             id="price"
             type="number"
             step="0.01"
             value={formData.price}
             onChange={(e) => handleChange('price', e.target.value)}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="mileage">Mileage</Label>
+          <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">Mileage</Label>
           <Input
             id="mileage"
             type="number"
             value={formData.mileage}
             onChange={(e) => handleChange('mileage', parseInt(e.target.value))}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="exteriorColor">Exterior Color</Label>
-          <Input
-            id="exteriorColor"
-            value={formData.exteriorColor}
-            onChange={(e) => handleChange('exteriorColor', e.target.value)}
-            required
-          />
+          <Label htmlFor="exteriorColor" className="text-sm font-medium text-gray-700">Exterior Color</Label>
+          <Select value={formData.exteriorColor} onValueChange={(value) => handleChange('exteriorColor', value)}>
+            <SelectTrigger className={selectTriggerStyle}>
+              <SelectValue placeholder="Select exterior color" />
+            </SelectTrigger>
+            <SelectContent>
+              {EXTERIOR_COLORS.map((color) => (
+                <SelectItem key={color} value={color}>{color}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
-          <Label htmlFor="interiorColor">Interior Color</Label>
-          <Input
-            id="interiorColor"
-            value={formData.interiorColor || ''}
-            onChange={(e) => handleChange('interiorColor', e.target.value)}
-          />
+          <Label htmlFor="interiorColor" className="text-sm font-medium text-gray-700">Interior Color</Label>
+          <Select value={formData.interiorColor || ""} onValueChange={(value) => handleChange('interiorColor', value)}>
+            <SelectTrigger className={selectTriggerStyle}>
+              <SelectValue placeholder="Select interior color" />
+            </SelectTrigger>
+            <SelectContent>
+              {INTERIOR_COLORS.map((color) => (
+                <SelectItem key={color} value={color}>{color}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
-          <Label htmlFor="fuelType">Fuel Type</Label>
+          <Label htmlFor="fuelType" className="text-sm font-medium text-gray-700">Fuel Type</Label>
           <Select value={formData.fuelType} onValueChange={(value) => handleChange('fuelType', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={selectTriggerStyle}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -190,18 +221,19 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           </Select>
         </div>
         <div>
-          <Label htmlFor="transmission">Transmission</Label>
+          <Label htmlFor="transmission" className="text-sm font-medium text-gray-700">Transmission</Label>
           <Input
             id="transmission"
             value={formData.transmission}
             onChange={(e) => handleChange('transmission', e.target.value)}
+            className={inputStyle}
             required
           />
         </div>
         <div>
-          <Label htmlFor="drivetrain">Drivetrain</Label>
+          <Label htmlFor="drivetrain" className="text-sm font-medium text-gray-700">Drivetrain</Label>
           <Select value={formData.drivetrain || "fwd"} onValueChange={(value) => handleChange('drivetrain', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={selectTriggerStyle}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -213,15 +245,16 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           </Select>
         </div>
         <div>
-          <Label htmlFor="engine">Engine</Label>
+          <Label htmlFor="engine" className="text-sm font-medium text-gray-700">Engine</Label>
           <Input
             id="engine"
             value={formData.engine || ''}
             onChange={(e) => handleChange('engine', e.target.value)}
+            className={inputStyle}
           />
         </div>
         <div>
-          <Label htmlFor="seatingCapacity">Seating Capacity</Label>
+          <Label htmlFor="seatingCapacity" className="text-sm font-medium text-gray-700">Seating Capacity</Label>
           <Input
             id="seatingCapacity"
             type="number"
@@ -229,31 +262,33 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
             max="8"
             value={formData.seatingCapacity || ''}
             onChange={(e) => handleChange('seatingCapacity', parseInt(e.target.value))}
+            className={inputStyle}
           />
         </div>
         <div>
-          <Label htmlFor="stockNumber">Stock Number</Label>
+          <Label htmlFor="stockNumber" className="text-sm font-medium text-gray-700">Stock Number</Label>
           <Input
             id="stockNumber"
             value={formData.stockNumber || ''}
             onChange={(e) => handleChange('stockNumber', e.target.value)}
+            className={inputStyle}
           />
         </div>
         <div className="md:col-span-2">
-          <Label htmlFor="vin" className="text-lg font-semibold text-trex-green">VIN Number</Label>
+          <Label htmlFor="vin" className="text-sm font-medium text-emerald-600">VIN Number</Label>
           <Input
             id="vin"
             value={formData.vin || ''}
             onChange={(e) => handleChange('vin', e.target.value)}
             placeholder="Enter 17-character VIN"
-            className="font-mono text-lg border-2 border-trex-green/30 focus:border-trex-green"
+            className="font-mono bg-gray-50 border-emerald-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500"
             maxLength={17}
           />
         </div>
         <div>
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status" className="text-sm font-medium text-gray-700">Status</Label>
           <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={selectTriggerStyle}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -264,9 +299,9 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           </Select>
         </div>
         <div>
-          <Label htmlFor="statusBanner">Status Banner (Optional)</Label>
+          <Label htmlFor="statusBanner" className="text-sm font-medium text-gray-700">Status Banner (Optional)</Label>
           <Select value={formData.statusBanner || "none"} onValueChange={(value) => handleChange('statusBanner', value === "none" ? null : value)}>
-            <SelectTrigger>
+            <SelectTrigger className={selectTriggerStyle}>
               <SelectValue placeholder="Select status banner" />
             </SelectTrigger>
             <SelectContent>
@@ -283,27 +318,29 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
       </div>
 
       <div>
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description" className="text-sm font-medium text-gray-700">Description</Label>
         <Textarea
           id="description"
           rows={4}
           value={formData.description || ''}
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Enter vehicle description..."
+          className="bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors"
         />
       </div>
 
       {/* Features */}
       <div>
-        <Label>Features</Label>
+        <Label className="text-sm font-medium text-gray-700">Features</Label>
         <div className="space-y-2">
           <div className="flex gap-2">
             <Input
               value={newFeature}
               onChange={(e) => setNewFeature(e.target.value)}
               placeholder="Add a feature..."
+              className={inputStyle}
             />
-            <Button type="button" onClick={handleAddFeature} variant="outline">
+            <Button type="button" onClick={handleAddFeature} variant="outline" className="border-gray-200 hover:border-emerald-500 hover:bg-emerald-50">
               Add
             </Button>
           </div>
@@ -328,16 +365,16 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
 
       {/* Image URLs */}
       <div>
-        <Label className="text-lg font-semibold">Vehicle Images</Label>
+        <Label className="text-sm font-medium text-gray-700">Vehicle Images</Label>
         <div className="space-y-4">
           {/* Local File Upload */}
           <div>
-            <Label className="text-sm text-gray-600">Upload Images from Computer</Label>
+            <Label className="text-xs text-gray-500">Upload Images from Computer</Label>
             <input
               type="file"
               accept="image/*"
               multiple
-              className="w-full p-2 border rounded text-sm"
+              className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
               onChange={(e) => {
                 const files = Array.from(e.target.files || []);
                 if (files.length > 0) {
@@ -369,10 +406,10 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
 
           {/* Bulk Image URL Input */}
           <div>
-            <Label className="text-sm text-gray-600">Or paste Google Drive URLs (one per line)</Label>
+            <Label className="text-xs text-gray-500">Or paste Google Drive URLs (one per line)</Label>
             <div className="space-y-2">
               <textarea
-                className="w-full h-32 p-3 border rounded text-sm font-mono resize-none"
+                className="w-full h-32 p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono resize-none focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
                 placeholder={`Paste your Google Drive image URLs here, one per line (up to 10):
 
 https://drive.google.com/file/d/FILE_ID_1/view
@@ -440,7 +477,7 @@ Press Enter after each URL to add it as a separate image...`}
               <div className="flex gap-2">
                 <input
                   type="text"
-                  className="flex-1 p-2 border rounded text-sm"
+                  className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
                   placeholder="Or paste one URL here and click Add..."
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -466,7 +503,7 @@ Press Enter after each URL to add it as a separate image...`}
                 />
                 <button
                   type="button"
-                  className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                  className="px-3 py-2 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700 transition-colors"
                   onClick={(e) => {
                     const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
                     const url = input.value.trim();
