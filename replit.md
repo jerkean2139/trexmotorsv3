@@ -1,15 +1,25 @@
 # Overview
 
-This is a comprehensive used car dealership website for T-Rex Motors in Richmond. The application provides a customer-facing vehicle inventory browsing system with advanced search and filter capabilities, vehicle detail modals with inquiry forms, and a complete admin dashboard for vehicle management. The system is built as a full-stack web application using modern React and Node.js technologies with a PostgreSQL database.
+This is a comprehensive **multi-tenant** used car dealership website system for T-Rex Motors. The application provides customer-facing vehicle inventory browsing with advanced search and filter capabilities, vehicle detail modals with inquiry forms, and a unified admin dashboard for managing multiple dealership locations. The system is built as a full-stack web application using modern React and Node.js technologies with a PostgreSQL database.
 
-## Current Status (November 2025)
+## Current Status (December 2025)
+✓ **Multi-Tenant Architecture** - Single database with dealership isolation for Richmond & Norfolk locations
 ✓ **Full Application Completed** - Professional dealership website with complete functionality
-✓ **Vehicle Inventory System** - 21+ vehicles with comprehensive data
+✓ **Vehicle Inventory System** - Dealership-scoped vehicles with comprehensive data
 ✓ **Search & Filter System** - Advanced filtering by make, year range, price range with real-time results
-✓ **Admin Dashboard** - Complete vehicle management with authentication (admin/trex2025!)
+✓ **Admin Dashboard** - Complete vehicle management with dealership switcher and authentication (admin/trex2025!)
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
-✓ **Database Integration** - Full PostgreSQL setup with proper schema and sample data
+✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
+
+## Multi-Tenant Architecture (December 2025)
+- **Dealerships Table**: Central registry of all dealership locations with unique slugs
+- **Current Locations**: 
+  - T-Rex Motors Richmond (trex-richmond) - 25 vehicles
+  - T-Rex Motors Norfolk (trex-norfolk) - ready for inventory
+- **Tenant Isolation**: All vehicles, inquiries, and financing applications are scoped to specific dealerships
+- **Admin Session**: selectedDealershipId tracks which dealership admin is managing
+- **Security Enforcement**: Server-side validation prevents cross-tenant data access
 
 ## Deployment Platform: Railway
 - **Configuration**: `railway.toml` in project root
@@ -38,11 +48,14 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Session-based authentication for admin users
 - **File Uploads**: Uppy.js integration with object storage for vehicle images
 
-## Database Design
-- **Primary Entities**: Users, Vehicles, and Inquiries
-- **Vehicle Schema**: Comprehensive fields including make, model, year, price, mileage, colors, engine specs, features array, and image storage
-- **Relationships**: Inquiries reference specific vehicles for customer interest tracking
-- **Features**: Support for featured vehicles, status tracking, and rich metadata
+## Database Design (Multi-Tenant)
+- **Dealerships Table**: Central tenant registry with id, name, slug, contact info, branding (logo, primaryColor)
+- **Users Table**: Admin authentication with bcrypt-hashed passwords
+- **Vehicles Table**: Full inventory with dealershipId foreign key for tenant isolation
+- **Inquiries Table**: Customer inquiries linked to vehicles and dealerships
+- **Financing Applications Table**: Loan applications scoped to dealerships
+- **Relationships**: All entities reference dealershipId for data isolation
+- **Security**: Server-side enforcement prevents cross-tenant data access
 
 ## Project Structure
 - `/client` - React frontend application with components, pages, and utilities

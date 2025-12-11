@@ -230,6 +230,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/select-dealership", requireAuth, async (req, res) => {
     try {
       const { dealershipId } = req.body;
+      
+      // Validate that the dealership exists
+      if (dealershipId) {
+        const dealership = await storage.getDealershipById(dealershipId);
+        if (!dealership) {
+          return res.status(400).json({ error: "Invalid dealership ID" });
+        }
+      }
+      
       req.session.selectedDealershipId = dealershipId;
       res.json({ success: true, selectedDealershipId: dealershipId });
     } catch (error) {
@@ -331,7 +340,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/vehicles", requireAuth, async (req, res) => {
     try {
       const vehicleData = insertVehicleSchema.parse(req.body);
-      const vehicle = await storage.createVehicle(vehicleData);
+      
+      // SECURITY: Always use session dealership - never trust client-supplied dealershipId
+      const dealershipId = req.session.selectedDealershipId;
+      if (!dealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
+      
+      const vehicle = await storage.createVehicle({
+        ...vehicleData,
+        dealershipId,
+      });
       res.status(201).json(vehicle);
     } catch (error) {
       console.error("Error creating vehicle:", error);
@@ -345,10 +364,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/vehicles/:id", requireAuth, async (req, res) => {
     try {
       const vehicleData = insertVehicleSchema.partial().parse(req.body);
-      const vehicle = await storage.updateVehicle(req.params.id, vehicleData);
-      if (!vehicle) {
+      
+      // SECURITY: Verify vehicle belongs to admin's selected dealership
+      const selectedDealershipId = req.session.selectedDealershipId;
+      if (!selectedDealershipId) {
+        return res.status(400).json({ error: "No dealership selected" });
+      }
+      
+      const existingVehicle = await storage.getVehicleById(req.params.id);
+      if (!existingVehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }
+      
+      if (existingVehicle.dealershipId !== selectedDealershipId) {
+        return res.status(403).json({ error: "Not authorized to modify this vehicle" });
+      }
+      
+      // Remove dealershipId from update data to prevent reassignment
+      const { dealershipId: _, ...safeVehicleData } = vehicleData as any;
+      
+      const vehicle = await storage.updateVehicle(req.params.id, safeVehicleData);
       res.json(vehicle);
     } catch (error) {
       console.error("Error updating vehicle:", error);
@@ -361,10 +396,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/vehicles/:id", requireAuth, async (req, res) => {
     try {
-      const success = await storage.deleteVehicle(req.params.id);
-      if (!success) {
+      // SECURITY: Verify vehicle belongs to admin's selected dealership
+      const selectedDealershipId = req.session.selectedDealershipId;
+      if (!selectedDealershipId) {
+        return res.status(400).json({ error: "No dealership selected" });
+      }
+      
+      const existingVehicle = await storage.getVehicleById(req.params.id);
+      if (!existingVehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
       }
+      
+      if (existingVehicle.dealershipId !== selectedDealershipId) {
+        return res.status(403).json({ error: "Not authorized to delete this vehicle" });
+      }
+      
+      const success = await storage.deleteVehicle(req.params.id);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting vehicle:", error);
@@ -376,7 +423,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/inquiries", async (req, res) => {
     try {
       const inquiryData = insertInquirySchema.parse(req.body);
-      const inquiry = await storage.createInquiry(inquiryData);
+      
+      // SECURITY: Only derive dealershipId from the vehicle - never trust client
+      let dealershipId: string | null = null;
+      if (inquiryData.vehicleId) {
+        const vehicle = await storage.getVehicleById(inquiryData.vehicleId);
+        if (!vehicle) {
+          return res.status(400).json({ error: "Invalid vehicle ID" });
+        }
+        dealershipId = vehicle.dealershipId;
+      }
+      
+      const inquiry = await storage.createInquiry({
+        ...inquiryData,
+        dealershipId,
+      });
       res.status(201).json(inquiry);
     } catch (error) {
       console.error("Error creating inquiry:", error);
@@ -399,10 +460,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Financing application routes
+  // NOTE: For customer-facing sites, the dealershipId will be derived from the site's context
+  // (e.g., subdomain or URL param). The frontend should pass dealershipSlug in the request.
   app.post("/api/financing-applications", async (req, res) => {
     try {
       const applicationData = insertFinancingApplicationSchema.parse(req.body);
-      const application = await storage.createFinancingApplication(applicationData);
+      
+      // SECURITY: Derive dealershipId from dealershipSlug only - don't accept raw dealershipId
+      let dealershipId: string | null = null;
+      if (req.body.dealershipSlug) {
+        const dealership = await storage.getDealershipBySlug(req.body.dealershipSlug);
+        if (!dealership) {
+          return res.status(400).json({ error: "Invalid dealership" });
+        }
+        dealershipId = dealership.id;
+      }
+      
+      const application = await storage.createFinancingApplication({
+        ...applicationData,
+        dealershipId,
+      });
       res.status(201).json(application);
     } catch (error) {
       console.error("Error creating financing application:", error);
