@@ -28,12 +28,14 @@ const selectTriggerStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:bord
 
 interface AdminVehicleFormProps {
   vehicle?: Vehicle | null;
+  dealershipId: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: AdminVehicleFormProps) {
+export default function AdminVehicleForm({ vehicle, dealershipId, onSuccess, onCancel }: AdminVehicleFormProps) {
   const [formData, setFormData] = useState<InsertVehicle>({
+    dealershipId: vehicle?.dealershipId || dealershipId,
     make: vehicle?.make || '',
     model: vehicle?.model || '',
     year: vehicle?.year || new Date().getFullYear(),
@@ -74,7 +76,7 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
         title: "Success", 
         description: vehicle ? "Vehicle updated successfully" : "Vehicle created successfully" 
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", dealershipId] });
       onSuccess();
     },
     onError: () => {

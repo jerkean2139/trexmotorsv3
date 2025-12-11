@@ -44,6 +44,12 @@ function AdminSubmissions() {
   const [financingApps, setFinancingApps] = useState<FinancingApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedDealershipId, setSelectedDealershipId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminSelectedDealership') || "";
+    }
+    return "";
+  });
 
   // Check authentication - use same endpoint as main admin page
   useEffect(() => {
@@ -77,10 +83,16 @@ function AdminSubmissions() {
     try {
       setIsLoading(true);
       
+      // Build query params with dealership filter
+      const params = new URLSearchParams();
+      if (selectedDealershipId) {
+        params.set('dealershipId', selectedDealershipId);
+      }
+      
       // Fetch inquiries and financing applications simultaneously
       const [inquiriesResponse, financingResponse] = await Promise.all([
-        fetch('/api/inquiries'),
-        fetch('/api/financing-applications')
+        fetch(`/api/inquiries?${params.toString()}`, { credentials: 'include' }),
+        fetch(`/api/financing-applications?${params.toString()}`, { credentials: 'include' })
       ]);
 
       if (inquiriesResponse.ok) {

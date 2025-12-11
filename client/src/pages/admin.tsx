@@ -11,11 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminVehicleForm from "@/components/AdminVehicleForm";
-import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign } from "lucide-react";
+import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Vehicle } from "@shared/schema";
+import type { Vehicle, Dealership } from "@shared/schema";
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,6 +25,12 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
+  const [selectedDealershipId, setSelectedDealershipId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminSelectedDealership') || "";
+    }
+    return "";
+  });
   const [viewMode, setViewMode] = useState<"tiles" | "table">(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('adminViewMode') as "tiles" | "table") || "tiles";
@@ -39,6 +45,31 @@ export default function Admin() {
   useEffect(() => {
     localStorage.setItem('adminViewMode', viewMode);
   }, [viewMode]);
+
+  // Persist selected dealership preference
+  useEffect(() => {
+    localStorage.setItem('adminSelectedDealership', selectedDealershipId);
+  }, [selectedDealershipId]);
+
+  // Fetch dealerships
+  const { data: dealerships = [] } = useQuery<Dealership[]>({
+    queryKey: ["/api/dealerships"],
+    queryFn: async () => {
+      const response = await fetch('/api/dealerships', { 
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('Failed to fetch dealerships');
+      return response.json();
+    },
+  });
+
+  // Auto-select first dealership if none selected
+  useEffect(() => {
+    if (dealerships.length > 0 && !selectedDealershipId) {
+      setSelectedDealershipId(dealerships[0].id);
+    }
+  }, [dealerships, selectedDealershipId]);
 
   // Check authentication status - Railway deploys frontend/backend together, so use relative URLs
   const { data: authData, refetch: refetchAuth } = useQuery({
@@ -57,12 +88,16 @@ export default function Admin() {
     refetchOnWindowFocus: false,
   });
 
-  // Get vehicles for admin
+  // Get vehicles for admin (filtered by dealership)
   const { data: vehiclesData, isLoading } = useQuery({
-    queryKey: ["/api/vehicles"],
-    enabled: isAuthenticated || authData?.isAuthenticated,
+    queryKey: ["/api/vehicles", selectedDealershipId],
+    enabled: (isAuthenticated || authData?.isAuthenticated) && !!selectedDealershipId,
     queryFn: async () => {
-      const response = await fetch('/api/vehicles', { 
+      const params = new URLSearchParams();
+      if (selectedDealershipId) {
+        params.set('dealershipId', selectedDealershipId);
+      }
+      const response = await fetch(`/api/vehicles?${params.toString()}`, { 
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -90,7 +125,7 @@ export default function Admin() {
       setIsAuthenticated(true);
       toast({ title: "Success", description: "Logged in successfully" });
       await refetchAuth();
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -121,7 +156,7 @@ export default function Admin() {
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to delete vehicle", variant: "destructive" });
@@ -136,7 +171,7 @@ export default function Admin() {
     onSuccess: (_, variables) => {
       const fieldName = Object.keys(variables.updates)[0];
       toast({ title: "Updated", description: `${fieldName} updated successfully` });
-      queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to update vehicle", variant: "destructive" });
@@ -277,13 +312,42 @@ export default function Admin() {
       <header className="sticky top-0 z-50 bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center shadow-lg shadow-[#72E118]/30">
-                <Car className="h-6 w-6 text-white" />
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center shadow-lg shadow-[#72E118]/30">
+                  <Car className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold">T-Rex Motors</h1>
+                  <p className="text-gray-400 text-sm">Vehicle Management Dashboard</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-bold">T-Rex Motors</h1>
-                <p className="text-gray-400 text-sm">Vehicle Management Dashboard</p>
+              
+              {/* Dealership Selector */}
+              <div className="flex items-center gap-2 bg-gray-700/50 rounded-lg px-3 py-2 border border-gray-600">
+                <Building2 className="h-5 w-5 text-[#72E118]" />
+                <Select 
+                  value={selectedDealershipId} 
+                  onValueChange={setSelectedDealershipId}
+                >
+                  <SelectTrigger 
+                    className="border-0 bg-transparent text-white w-48 focus:ring-0 focus:ring-offset-0"
+                    data-testid="select-dealership"
+                  >
+                    <SelectValue placeholder="Select dealership" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dealerships.map((dealership) => (
+                      <SelectItem 
+                        key={dealership.id} 
+                        value={dealership.id}
+                        data-testid={`option-dealership-${dealership.id}`}
+                      >
+                        {dealership.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -771,6 +835,7 @@ export default function Admin() {
             <DialogTitle>Add New Vehicle</DialogTitle>
           </DialogHeader>
           <AdminVehicleForm 
+            dealershipId={selectedDealershipId}
             onSuccess={() => setShowAddModal(false)}
             onCancel={() => setShowAddModal(false)}
           />
@@ -785,6 +850,7 @@ export default function Admin() {
           </DialogHeader>
           <AdminVehicleForm 
             vehicle={editingVehicle}
+            dealershipId={selectedDealershipId}
             onSuccess={() => setEditingVehicle(null)}
             onCancel={() => setEditingVehicle(null)}
           />
