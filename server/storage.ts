@@ -1,4 +1,4 @@
-import { vehicles, inquiries, users, financingApplications, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication } from "@shared/schema";
+import { vehicles, inquiries, users, financingApplications, dealerships, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication, type Dealership, type InsertDealership } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, or, gte, lte, desc, asc, sql } from "drizzle-orm";
 
@@ -17,26 +17,56 @@ export interface VehicleSortOptions {
 }
 
 export interface IStorage {
+  getDealerships(): Promise<Dealership[]>;
+  getDealershipById(id: string): Promise<Dealership | undefined>;
+  getDealershipBySlug(slug: string): Promise<Dealership | undefined>;
+  createDealership(dealership: InsertDealership): Promise<Dealership>;
+  updateDealership(id: string, dealership: Partial<InsertDealership>): Promise<Dealership | undefined>;
+
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  getVehicles(filters?: VehicleFilters, sort?: VehicleSortOptions, limit?: number, offset?: number): Promise<Vehicle[]>;
+  getVehicles(dealershipId: string | null, filters?: VehicleFilters, sort?: VehicleSortOptions, limit?: number, offset?: number): Promise<Vehicle[]>;
   getVehicleById(id: string): Promise<Vehicle | undefined>;
   createVehicle(vehicle: InsertVehicle): Promise<Vehicle>;
   updateVehicle(id: string, vehicle: Partial<InsertVehicle>): Promise<Vehicle | undefined>;
   deleteVehicle(id: string): Promise<boolean>;
-  getVehicleCount(filters?: VehicleFilters): Promise<number>;
-  getFeaturedVehicles(limit?: number): Promise<Vehicle[]>;
+  getVehicleCount(dealershipId: string | null, filters?: VehicleFilters): Promise<number>;
+  getFeaturedVehicles(dealershipId: string | null, limit?: number): Promise<Vehicle[]>;
   
   createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
-  getInquiries(): Promise<Inquiry[]>;
+  getInquiries(dealershipId: string | null): Promise<Inquiry[]>;
   
   createFinancingApplication(application: InsertFinancingApplication): Promise<FinancingApplication>;
-  getFinancingApplications(): Promise<FinancingApplication[]>;
+  getFinancingApplications(dealershipId: string | null): Promise<FinancingApplication[]>;
 }
 
 export class DatabaseStorage implements IStorage {
+  async getDealerships(): Promise<Dealership[]> {
+    return await db.select().from(dealerships).where(eq(dealerships.isActive, true)).orderBy(asc(dealerships.name));
+  }
+
+  async getDealershipById(id: string): Promise<Dealership | undefined> {
+    const [dealership] = await db.select().from(dealerships).where(eq(dealerships.id, id));
+    return dealership || undefined;
+  }
+
+  async getDealershipBySlug(slug: string): Promise<Dealership | undefined> {
+    const [dealership] = await db.select().from(dealerships).where(eq(dealerships.slug, slug));
+    return dealership || undefined;
+  }
+
+  async createDealership(dealership: InsertDealership): Promise<Dealership> {
+    const [newDealership] = await db.insert(dealerships).values(dealership).returning();
+    return newDealership;
+  }
+
+  async updateDealership(id: string, dealership: Partial<InsertDealership>): Promise<Dealership | undefined> {
+    const [updatedDealership] = await db.update(dealerships).set(dealership).where(eq(dealerships.id, id)).returning();
+    return updatedDealership || undefined;
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -55,11 +85,15 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getVehicles(filters?: VehicleFilters, sort?: VehicleSortOptions, limit = 50, offset = 0): Promise<Vehicle[]> {
+  async getVehicles(dealershipId: string | null, filters?: VehicleFilters, sort?: VehicleSortOptions, limit = 50, offset = 0): Promise<Vehicle[]> {
     let query = db.select().from(vehicles);
 
     // Apply filters
     const conditions = [];
+    
+    if (dealershipId) {
+      conditions.push(eq(vehicles.dealershipId, dealershipId));
+    }
     
     if (filters?.make) {
       conditions.push(eq(vehicles.make, filters.make));
@@ -154,10 +188,14 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  async getVehicleCount(filters?: VehicleFilters): Promise<number> {
+  async getVehicleCount(dealershipId: string | null, filters?: VehicleFilters): Promise<number> {
     let query = db.select({ count: sql`count(*)` }).from(vehicles);
 
     const conditions = [];
+    
+    if (dealershipId) {
+      conditions.push(eq(vehicles.dealershipId, dealershipId));
+    }
     
     if (filters?.make) {
       conditions.push(eq(vehicles.make, filters.make));
@@ -202,11 +240,15 @@ export class DatabaseStorage implements IStorage {
     return Number(result.count);
   }
 
-  async getFeaturedVehicles(limit = 6): Promise<Vehicle[]> {
+  async getFeaturedVehicles(dealershipId: string | null, limit = 6): Promise<Vehicle[]> {
+    const conditions = [eq(vehicles.isFeatured, true)];
+    if (dealershipId) {
+      conditions.push(eq(vehicles.dealershipId, dealershipId));
+    }
     return await db
       .select()
       .from(vehicles)
-      .where(eq(vehicles.isFeatured, true))
+      .where(and(...conditions))
       .orderBy(desc(vehicles.createdAt))
       .limit(limit);
   }
@@ -219,7 +261,14 @@ export class DatabaseStorage implements IStorage {
     return newInquiry;
   }
 
-  async getInquiries(): Promise<Inquiry[]> {
+  async getInquiries(dealershipId: string | null): Promise<Inquiry[]> {
+    if (dealershipId) {
+      return await db
+        .select()
+        .from(inquiries)
+        .where(eq(inquiries.dealershipId, dealershipId))
+        .orderBy(desc(inquiries.createdAt));
+    }
     return await db
       .select()
       .from(inquiries)
@@ -234,7 +283,14 @@ export class DatabaseStorage implements IStorage {
     return newApplication;
   }
 
-  async getFinancingApplications(): Promise<FinancingApplication[]> {
+  async getFinancingApplications(dealershipId: string | null): Promise<FinancingApplication[]> {
+    if (dealershipId) {
+      return await db
+        .select()
+        .from(financingApplications)
+        .where(eq(financingApplications.dealershipId, dealershipId))
+        .orderBy(desc(financingApplications.createdAt));
+    }
     return await db
       .select()
       .from(financingApplications)
