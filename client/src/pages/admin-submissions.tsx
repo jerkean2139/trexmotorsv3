@@ -153,8 +153,24 @@ function AdminSubmissions() {
                 onClick={() => window.location.reload()}
                 className="bg-trex-green hover:bg-trex-green/90"
               >
-                <i className="fas fa-refresh mr-2"></i>
                 Refresh
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/auth/logout', { 
+                      method: 'POST',
+                      credentials: 'include'
+                    });
+                    setLocation('/admin');
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }}
+                data-testid="button-logout"
+              >
+                Log Out
               </Button>
             </div>
           </div>
