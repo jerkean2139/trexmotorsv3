@@ -23,8 +23,8 @@ const INTERIOR_COLORS = [
   "Saddle Brown", "Camel", "Ivory", "Ebony", "Graphite"
 ];
 
-const inputStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors";
-const selectTriggerStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors";
+const inputStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-primary focus:ring-primary transition-colors";
+const selectTriggerStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:border-primary focus:ring-primary transition-colors";
 
 interface AdminVehicleFormProps {
   vehicle?: Vehicle | null;
@@ -275,13 +275,13 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           />
         </div>
         <div className="md:col-span-2">
-          <Label htmlFor="vin" className="text-sm font-medium text-emerald-600">VIN Number</Label>
+          <Label htmlFor="vin" className="text-sm font-medium text-primary">VIN Number</Label>
           <Input
             id="vin"
             value={formData.vin || ''}
             onChange={(e) => handleChange('vin', e.target.value)}
             placeholder="Enter 17-character VIN"
-            className="font-mono bg-gray-50 border-emerald-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500"
+            className="font-mono bg-gray-50 border-primary/30 focus:bg-white focus:border-primary focus:ring-primary"
             maxLength={17}
           />
         </div>
@@ -325,7 +325,7 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           value={formData.description || ''}
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Enter vehicle description..."
-          className="bg-gray-50 border-gray-200 focus:bg-white focus:border-emerald-500 focus:ring-emerald-500 transition-colors"
+          className="bg-gray-50 border-gray-200 focus:bg-white focus:border-primary focus:ring-primary transition-colors"
         />
       </div>
 
@@ -340,7 +340,7 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
               placeholder="Add a feature..."
               className={inputStyle}
             />
-            <Button type="button" onClick={handleAddFeature} variant="outline" className="border-gray-200 hover:border-emerald-500 hover:bg-emerald-50">
+            <Button type="button" onClick={handleAddFeature} variant="outline" className="border-gray-200 hover:border-primary hover:bg-primary/10">
               Add
             </Button>
           </div>
@@ -374,7 +374,7 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
               type="file"
               accept="image/*"
               multiple
-              className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
+              className="w-full p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-primary focus:outline-none transition-colors"
               onChange={(e) => {
                 const files = Array.from(e.target.files || []);
                 if (files.length > 0) {
@@ -409,7 +409,7 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
             <Label className="text-xs text-gray-500">Or paste Google Drive URLs (one per line)</Label>
             <div className="space-y-2">
               <textarea
-                className="w-full h-32 p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono resize-none focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
+                className="w-full h-32 p-3 bg-gray-50 border border-gray-200 rounded text-sm font-mono resize-none focus:bg-white focus:border-primary focus:outline-none transition-colors"
                 placeholder={`Paste your Google Drive image URLs here, one per line (up to 10):
 
 https://drive.google.com/file/d/FILE_ID_1/view
@@ -477,7 +477,7 @@ Press Enter after each URL to add it as a separate image...`}
               <div className="flex gap-2">
                 <input
                   type="text"
-                  className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-emerald-500 focus:outline-none transition-colors"
+                  className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded text-sm focus:bg-white focus:border-primary focus:outline-none transition-colors"
                   placeholder="Or paste one URL here and click Add..."
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -503,7 +503,7 @@ Press Enter after each URL to add it as a separate image...`}
                 />
                 <button
                   type="button"
-                  className="px-3 py-2 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700 transition-colors"
+                  className="px-3 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-colors"
                   onClick={(e) => {
                     const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
                     const url = input.value.trim();
