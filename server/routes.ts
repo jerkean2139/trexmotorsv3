@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema } from "@shared/schema";
+import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -12,6 +12,7 @@ declare module "express-session" {
   interface SessionData {
     isAuthenticated: boolean;
     userId: string;
+    selectedDealershipId: string | null;
   }
 }
 
@@ -151,7 +152,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/check", (req, res) => {
-    res.json({ isAuthenticated: !!req.session.isAuthenticated });
+    res.json({ 
+      isAuthenticated: !!req.session.isAuthenticated,
+      selectedDealershipId: req.session.selectedDealershipId || null
+    });
+  });
+
+  // Dealership routes
+  app.get("/api/dealerships", async (req, res) => {
+    try {
+      const dealerships = await storage.getDealerships();
+      res.json(dealerships);
+    } catch (error) {
+      console.error("Error fetching dealerships:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/dealerships/:id", async (req, res) => {
+    try {
+      const dealership = await storage.getDealershipById(req.params.id);
+      if (!dealership) {
+        return res.status(404).json({ error: "Dealership not found" });
+      }
+      res.json(dealership);
+    } catch (error) {
+      console.error("Error fetching dealership:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/dealerships/slug/:slug", async (req, res) => {
+    try {
+      const dealership = await storage.getDealershipBySlug(req.params.slug);
+      if (!dealership) {
+        return res.status(404).json({ error: "Dealership not found" });
+      }
+      res.json(dealership);
+    } catch (error) {
+      console.error("Error fetching dealership:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/dealerships", requireAuth, async (req, res) => {
+    try {
+      const dealershipData = insertDealershipSchema.parse(req.body);
+      const dealership = await storage.createDealership(dealershipData);
+      res.status(201).json(dealership);
+    } catch (error) {
+      console.error("Error creating dealership:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/dealerships/:id", requireAuth, async (req, res) => {
+    try {
+      const dealershipData = insertDealershipSchema.partial().parse(req.body);
+      const dealership = await storage.updateDealership(req.params.id, dealershipData);
+      if (!dealership) {
+        return res.status(404).json({ error: "Dealership not found" });
+      }
+      res.json(dealership);
+    } catch (error) {
+      console.error("Error updating dealership:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Set selected dealership for admin session
+  app.post("/api/admin/select-dealership", requireAuth, async (req, res) => {
+    try {
+      const { dealershipId } = req.body;
+      req.session.selectedDealershipId = dealershipId;
+      res.json({ success: true, selectedDealershipId: dealershipId });
+    } catch (error) {
+      console.error("Error selecting dealership:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // Vehicle routes
@@ -167,8 +251,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         searchQuery,
         sortBy,
         limit = 20,
-        offset = 0
+        offset = 0,
+        dealershipId,
+        dealershipSlug
       } = req.query;
+
+      // Determine dealership ID from query params or slug
+      let resolvedDealershipId: string | null = dealershipId as string || null;
+      if (!resolvedDealershipId && dealershipSlug) {
+        const dealership = await storage.getDealershipBySlug(dealershipSlug as string);
+        resolvedDealershipId = dealership?.id || null;
+      }
 
       const filters = {
         make: make as string,
@@ -183,13 +276,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sort = { sortBy: sortBy as any };
       
       const vehicles = await storage.getVehicles(
+        resolvedDealershipId,
         filters,
         sort,
         parseInt(limit as string),
         parseInt(offset as string)
       );
 
-      const totalCount = await storage.getVehicleCount(filters);
+      const totalCount = await storage.getVehicleCount(resolvedDealershipId, filters);
 
       res.json({
         vehicles,
@@ -204,7 +298,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/vehicles/featured", async (req, res) => {
     try {
-      const vehicles = await storage.getFeaturedVehicles(6);
+      const { dealershipId, dealershipSlug } = req.query;
+      
+      // Determine dealership ID from query params or slug
+      let resolvedDealershipId: string | null = dealershipId as string || null;
+      if (!resolvedDealershipId && dealershipSlug) {
+        const dealership = await storage.getDealershipBySlug(dealershipSlug as string);
+        resolvedDealershipId = dealership?.id || null;
+      }
+      
+      const vehicles = await storage.getFeaturedVehicles(resolvedDealershipId, 6);
       res.json(vehicles);
     } catch (error) {
       console.error("Error fetching featured vehicles:", error);
@@ -286,7 +389,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/inquiries", requireAuth, async (req, res) => {
     try {
-      const inquiries = await storage.getInquiries();
+      const dealershipId = req.session.selectedDealershipId || req.query.dealershipId as string || null;
+      const inquiries = await storage.getInquiries(dealershipId);
       res.json(inquiries);
     } catch (error) {
       console.error("Error fetching inquiries:", error);
@@ -311,7 +415,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/financing-applications", requireAuth, async (req, res) => {
     try {
-      const applications = await storage.getFinancingApplications();
+      const dealershipId = req.session.selectedDealershipId || req.query.dealershipId as string || null;
+      const applications = await storage.getFinancingApplications(dealershipId);
       res.json(applications);
     } catch (error) {
       console.error("Error fetching financing applications:", error);
@@ -322,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SEO Routes - Sitemap
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const vehicles = await storage.getVehicles({});
+      const allVehicles = await storage.getVehicles(null); // null = all dealerships
       const baseUrl = "https://trexmotors.com";
       
       let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -348,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   </url>`;
 
       // Add individual vehicle pages
-      for (const vehicle of vehicles.vehicles) {
+      for (const vehicle of allVehicles) {
         const vehicleUrl = `${baseUrl}/vehicle/${vehicle.id}`;
         const vehicleTitle = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
         sitemap += `
