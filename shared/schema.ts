@@ -3,14 +3,32 @@ import { pgTable, text, varchar, integer, decimal, timestamp, jsonb, boolean } f
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const dealerships = pgTable("dealerships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 100 }).notNull(),
+  slug: varchar("slug", { length: 50 }).notNull().unique(),
+  address: varchar("address", { length: 200 }),
+  city: varchar("city", { length: 50 }),
+  state: varchar("state", { length: 20 }),
+  zipCode: varchar("zip_code", { length: 10 }),
+  phone: varchar("phone", { length: 20 }),
+  email: varchar("email", { length: 100 }),
+  logo: text("logo"),
+  primaryColor: varchar("primary_color", { length: 20 }).default("#72E118"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  dealershipId: varchar("dealership_id").references(() => dealerships.id),
 });
 
 export const vehicles = pgTable("vehicles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  dealershipId: varchar("dealership_id").references(() => dealerships.id),
   make: varchar("make", { length: 50 }).notNull(),
   model: varchar("model", { length: 50 }).notNull(),
   year: integer("year").notNull(),
@@ -38,6 +56,7 @@ export const vehicles = pgTable("vehicles", {
 
 export const inquiries = pgTable("inquiries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  dealershipId: varchar("dealership_id").references(() => dealerships.id),
   vehicleId: varchar("vehicle_id").references(() => vehicles.id),
   firstName: varchar("first_name", { length: 50 }).notNull(),
   lastName: varchar("last_name", { length: 50 }).notNull(),
@@ -50,6 +69,7 @@ export const inquiries = pgTable("inquiries", {
 
 export const financingApplications = pgTable("financing_applications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  dealershipId: varchar("dealership_id").references(() => dealerships.id),
   firstName: varchar("first_name", { length: 50 }).notNull(),
   lastName: varchar("last_name", { length: 50 }).notNull(),
   email: varchar("email", { length: 100 }).notNull(),
@@ -65,6 +85,11 @@ export const financingApplications = pgTable("financing_applications", {
   vehicleInterest: text("vehicle_interest"),
   additionalInfo: text("additional_info"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDealershipSchema = createInsertSchema(dealerships).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -88,6 +113,8 @@ export const insertFinancingApplicationSchema = createInsertSchema(financingAppl
   createdAt: true,
 });
 
+export type InsertDealership = z.infer<typeof insertDealershipSchema>;
+export type Dealership = typeof dealerships.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
