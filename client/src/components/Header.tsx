@@ -26,13 +26,13 @@ export default function Header() {
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex justify-between items-center h-28 md:h-36">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <img 
               src="https://storage.googleapis.com/msgsndr/QjiQRR74D1pxPF7I8fcC/media/68042afc29d629c59c352a2b.png" 
               alt="T-Rex Motors Logo" 
-              className="h-12 md:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-24 md:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';

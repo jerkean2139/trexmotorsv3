@@ -50,10 +50,10 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
   
-  /* T-Rex Motors theme colors - #28A71B */
-  --trex-green: hsl(114, 72%, 38%);
-  --trex-green-dark: hsl(114, 72%, 30%);
-  --trex-green-light: hsl(114, 72%, 48%);
+  /* T-Rex Motors theme colors - #72E118 */
+  --trex-green: #72E118;
+  --trex-green-dark: #5CBF12;
+  --trex-green-light: #8EF442;
 }
 
 .dark {

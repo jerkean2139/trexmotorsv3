@@ -86,11 +86,11 @@ export default function Home() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="max-w-2xl">
-            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-emerald-600/20 text-emerald-400 rounded-full border border-emerald-600/30">
+            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-[#72E118]/20 text-[#72E118] rounded-full border border-[#72E118]/30">
               Trusted Since 2008
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Quality Used Cars in <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Richmond</span>
+              Quality Used Cars in <span className="text-[#72E118]">Richmond</span>
             </h1>
             <p className="text-lg lg:text-xl mb-8 text-gray-300 leading-relaxed">
               Discover your next vehicle from our extensive inventory of quality pre-owned cars, trucks, and SUVs. Competitive pricing with flexible financing options.
@@ -98,7 +98,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all duration-300"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-[#72E118]/30 hover:shadow-[#72E118]/40 transition-all duration-300"
                 onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 <Search className="mr-2 h-5 w-5" />
