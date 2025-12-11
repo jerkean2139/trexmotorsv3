@@ -31,7 +31,7 @@ export default function VehicleDetail({ vehicle, onClose }: VehicleDetailProps) 
 
   const inquiryMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("POST", "https://admin-backend-lyart.vercel.app/api/auth/vehicles/api/inquiries", {
+      return apiRequest("POST", "/api/inquiries", {
         ...data,
         vehicleId: vehicle.id,
       });
