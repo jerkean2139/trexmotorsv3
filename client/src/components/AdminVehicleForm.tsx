@@ -114,72 +114,103 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="make" className="text-sm font-medium text-gray-700">Make</Label>
-          <Input
-            id="make"
-            value={formData.make}
-            onChange={(e) => handleChange('make', e.target.value)}
-            className={inputStyle}
-            required
-          />
+      {/* Basic Vehicle Info Section */}
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          🚗 Basic Vehicle Information
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">Enter the main details about this vehicle</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="make" className="text-sm font-medium text-gray-700">Make (Brand)</Label>
+            <Input
+              id="make"
+              placeholder="e.g. Toyota, Ford, Honda"
+              value={formData.make}
+              onChange={(e) => handleChange('make', e.target.value)}
+              className={inputStyle}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="model" className="text-sm font-medium text-gray-700">Model</Label>
+            <Input
+              id="model"
+              placeholder="e.g. Camry, F-150, Civic"
+              value={formData.model}
+              onChange={(e) => handleChange('model', e.target.value)}
+              className={inputStyle}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="year" className="text-sm font-medium text-gray-700">Year</Label>
+            <Input
+              id="year"
+              type="number"
+              placeholder="e.g. 2022"
+              min="1990"
+              max={new Date().getFullYear() + 1}
+              value={formData.year}
+              onChange={(e) => handleChange('year', parseInt(e.target.value))}
+              className={inputStyle}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="trim" className="text-sm font-medium text-gray-700">Trim (Optional)</Label>
+            <Input
+              id="trim"
+              placeholder="e.g. SE, XLE, Sport"
+              value={formData.trim || ''}
+              onChange={(e) => handleChange('trim', e.target.value)}
+              className={inputStyle}
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="model" className="text-sm font-medium text-gray-700">Model</Label>
-          <Input
-            id="model"
-            value={formData.model}
-            onChange={(e) => handleChange('model', e.target.value)}
-            className={inputStyle}
-            required
-          />
+      </div>
+      
+      {/* Pricing & Mileage Section */}
+      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          💰 Price & Mileage
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="price" className="text-sm font-medium text-gray-700">Sale Price ($)</Label>
+            <Input
+              id="price"
+              type="number"
+              placeholder="e.g. 25000"
+              step="1"
+              value={formData.price}
+              onChange={(e) => handleChange('price', e.target.value)}
+              className={inputStyle}
+              required
+            />
+            <p className="text-xs text-gray-400 mt-1">Enter price without commas or dollar sign</p>
+          </div>
+          <div>
+            <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">Mileage (miles)</Label>
+            <Input
+              id="mileage"
+              type="number"
+              placeholder="e.g. 45000"
+              value={formData.mileage}
+              onChange={(e) => handleChange('mileage', parseInt(e.target.value))}
+              className={inputStyle}
+              required
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="year" className="text-sm font-medium text-gray-700">Year</Label>
-          <Input
-            id="year"
-            type="number"
-            min="1990"
-            max={new Date().getFullYear() + 1}
-            value={formData.year}
-            onChange={(e) => handleChange('year', parseInt(e.target.value))}
-            className={inputStyle}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="trim" className="text-sm font-medium text-gray-700">Trim</Label>
-          <Input
-            id="trim"
-            value={formData.trim || ''}
-            onChange={(e) => handleChange('trim', e.target.value)}
-            className={inputStyle}
-          />
-        </div>
-        <div>
-          <Label htmlFor="price" className="text-sm font-medium text-gray-700">Price</Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            value={formData.price}
-            onChange={(e) => handleChange('price', e.target.value)}
-            className={inputStyle}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">Mileage</Label>
-          <Input
-            id="mileage"
-            type="number"
-            value={formData.mileage}
-            onChange={(e) => handleChange('mileage', parseInt(e.target.value))}
-            className={inputStyle}
-            required
-          />
-        </div>
+      </div>
+
+      {/* Vehicle Details Section */}
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          🔧 Vehicle Details
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="exteriorColor" className="text-sm font-medium text-gray-700">Exterior Color</Label>
           <Select value={formData.exteriorColor} onValueChange={(value) => handleChange('exteriorColor', value)}>
@@ -315,21 +346,33 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
             </SelectContent>
           </Select>
         </div>
+        </div>
       </div>
 
-      <div>
-        <Label htmlFor="description" className="text-sm font-medium text-gray-700">Description</Label>
-        <Textarea
-          id="description"
-          rows={4}
-          value={formData.description || ''}
-          onChange={(e) => handleChange('description', e.target.value)}
-          placeholder="Enter vehicle description..."
-          className="bg-gray-50 border-gray-200 focus:bg-white focus:border-primary focus:ring-primary transition-colors"
-        />
+      {/* Description Section */}
+      <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          📝 Description
+        </h3>
+        <div>
+          <Label htmlFor="description" className="text-sm font-medium text-gray-700">Vehicle Description (Optional)</Label>
+          <Textarea
+            id="description"
+            rows={4}
+            value={formData.description || ''}
+            onChange={(e) => handleChange('description', e.target.value)}
+            placeholder="Enter vehicle description..."
+            className="bg-gray-50 border-gray-200 focus:bg-white focus:border-primary focus:ring-primary transition-colors"
+          />
+          <p className="text-xs text-gray-400 mt-1">Add details about condition, history, or special features</p>
+        </div>
       </div>
 
-      {/* Features */}
+      {/* Features Section */}
+      <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          ⭐ Vehicle Features
+        </h3>
       <div>
         <Label className="text-sm font-medium text-gray-700">Features</Label>
         <div className="space-y-2">
@@ -362,10 +405,15 @@ export default function AdminVehicleForm({ vehicle, onSuccess, onCancel }: Admin
           </div>
         </div>
       </div>
+      </div>
 
-      {/* Image URLs */}
-      <div>
-        <Label className="text-sm font-medium text-gray-700">Vehicle Images</Label>
+      {/* Images Section */}
+      <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          📷 Vehicle Photos
+        </h3>
+        <Label className="text-sm font-medium text-gray-700">Add photos of this vehicle</Label>
+        <p className="text-xs text-gray-400 mb-3">Good photos help sell vehicles faster! Add up to 10 photos.</p>
         <div className="space-y-4">
           {/* Local File Upload */}
           <div>
@@ -667,16 +715,22 @@ Press Enter after each URL to add it as a separate image...`}
       </div>
 
       {/* Featured Checkbox */}
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isFeatured"
-          checked={formData.isFeatured || false}
-          onCheckedChange={(checked) => handleChange('isFeatured', !!checked)}
-        />
-        <Label htmlFor="isFeatured">Featured Vehicle</Label>
+      <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="isFeatured"
+            checked={formData.isFeatured || false}
+            onCheckedChange={(checked) => handleChange('isFeatured', !!checked)}
+          />
+          <div>
+            <Label htmlFor="isFeatured" className="text-base font-medium">⭐ Feature This Vehicle</Label>
+            <p className="text-xs text-gray-500">Featured vehicles appear prominently on the homepage</p>
+          </div>
+        </div>
       </div>
 
-      <div className="flex justify-end space-x-4 pt-6 border-t">
+      {/* Submit Buttons */}
+      <div className="flex justify-end space-x-4 pt-6 border-t bg-gray-50 p-4 rounded-lg -mx-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

@@ -21,7 +21,7 @@ export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
-  const [loginForm, setLoginForm] = useState({ username: "admin", password: "trex2025!" });
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [yearFilter, setYearFilter] = useState("all");
@@ -218,11 +218,13 @@ export default function Admin() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-0 shadow-2xl">
           <CardHeader className="text-center pb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
-              <Car className="h-8 w-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold">T-Rex Admin</CardTitle>
-            <p className="text-sm text-gray-500 mt-1">Sign in to manage your inventory</p>
+            <img 
+              src="https://storage.googleapis.com/msgsndr/QjiQRR74D1pxPF7I8fcC/media/68042afc29d629c59c352a2b.png" 
+              alt="T-Rex Motors Logo" 
+              className="h-20 w-auto mx-auto mb-4"
+            />
+            <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+            <p className="text-sm text-gray-500 mt-1">Enter your login details to manage vehicles</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-5">
@@ -231,29 +233,33 @@ export default function Admin() {
                 <Input
                   id="username"
                   type="text"
+                  placeholder="Enter your username"
                   data-testid="input-username"
                   value={loginForm.username}
                   onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-                  className="h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  className="h-11 border-gray-200 focus:border-[#72E118] focus:ring-[#72E118]"
                   required
                 />
+                <p className="text-xs text-gray-400">Use the username provided by your administrator</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Enter your password"
                   data-testid="input-password"
                   value={loginForm.password}
                   onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                  className="h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  className="h-11 border-gray-200 focus:border-[#72E118] focus:ring-[#72E118]"
                   required
                 />
+                <p className="text-xs text-gray-400">Contact your administrator if you forgot your password</p>
               </div>
               <Button 
                 type="submit" 
                 data-testid="button-login"
-                className="w-full h-11 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg shadow-emerald-500/25 transition-all duration-300"
+                className="w-full h-12 bg-[#72E118] hover:bg-[#5CBF12] text-black font-semibold text-lg shadow-lg transition-all duration-300"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending ? "Signing in..." : "Sign In"}
@@ -272,7 +278,7 @@ export default function Admin() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-11 h-11 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <div className="w-11 h-11 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center shadow-lg shadow-[#72E118]/30">
                 <Car className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -283,7 +289,7 @@ export default function Admin() {
             <div className="flex items-center gap-3">
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-lg shadow-emerald-600/30 transition-all duration-300"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-white font-medium shadow-lg shadow-[#72E118]/30 transition-all duration-300"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Vehicle
@@ -311,7 +317,8 @@ export default function Admin() {
                 variant="ghost"
                 className="text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 mr-2" />
+                Log Out
               </Button>
             </div>
           </div>
@@ -324,7 +331,7 @@ export default function Admin() {
           <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center shadow-lg shadow-[#72E118]/30">
                   <Car className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -352,7 +359,7 @@ export default function Admin() {
           <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-[#72E118] rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
                   <CheckCircle className="h-6 w-6 text-white" />
                 </div>
                 <div>
@@ -391,7 +398,7 @@ export default function Admin() {
                   size="sm"
                   variant={viewMode === "tiles" ? "default" : "ghost"}
                   onClick={() => setViewMode("tiles")}
-                  className={`h-8 px-3 ${viewMode === "tiles" ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  className={`h-8 px-3 ${viewMode === "tiles" ? "bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
                   data-testid="button-view-tiles"
                 >
                   <LayoutGrid className="h-4 w-4 mr-1.5" />
@@ -401,7 +408,7 @@ export default function Admin() {
                   size="sm"
                   variant={viewMode === "table" ? "default" : "ghost"}
                   onClick={() => setViewMode("table")}
-                  className={`h-8 px-3 ${viewMode === "table" ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  className={`h-8 px-3 ${viewMode === "table" ? "bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
                   data-testid="button-view-table"
                 >
                   <TableIcon className="h-4 w-4 mr-1.5" />
@@ -416,11 +423,11 @@ export default function Admin() {
                   placeholder="Search vehicles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  className="pl-10 h-11 border-gray-200 focus:border-[#72E118] focus:ring-[#72E118]"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
+                <SelectTrigger className="h-11 border-gray-200 focus:border-[#72E118] focus:ring-[#72E118]">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -431,7 +438,7 @@ export default function Admin() {
                 </SelectContent>
               </Select>
               <Select value={yearFilter} onValueChange={setYearFilter}>
-                <SelectTrigger className="h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
+                <SelectTrigger className="h-11 border-gray-200 focus:border-[#72E118] focus:ring-[#72E118]">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
@@ -534,7 +541,7 @@ export default function Admin() {
                         ) : (
                           <button 
                             onClick={() => setEditingPrice({ id: vehicle.id, value: vehicle.price })}
-                            className="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                            className="font-semibold text-[#72E118] hover:text-[#5CBF12] hover:underline cursor-pointer"
                             data-testid={`button-edit-price-${vehicle.id}`}
                           >
                             {formatPrice(vehicle.price)}
@@ -551,7 +558,7 @@ export default function Admin() {
                         >
                           <SelectTrigger 
                             className={`h-8 w-[110px] text-xs font-medium border-0 ${
-                              vehicle.status === 'available' ? 'bg-emerald-100 text-emerald-700' :
+                              vehicle.status === 'available' ? 'bg-[#72E118]/20 text-[#5CBF12]' :
                               vehicle.status === 'pending' ? 'bg-amber-100 text-amber-700' :
                               'bg-gray-100 text-gray-700'
                             }`}
@@ -591,7 +598,7 @@ export default function Admin() {
                         <Switch
                           checked={vehicle.isFeatured || false}
                           onCheckedChange={() => handleFeaturedToggle(vehicle.id, vehicle.isFeatured)}
-                          className="data-[state=checked]:bg-emerald-600"
+                          className="data-[state=checked]:bg-[#72E118]"
                           data-testid={`switch-featured-${vehicle.id}`}
                         />
                       </TableCell>
@@ -600,7 +607,7 @@ export default function Admin() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-gray-500 hover:text-emerald-600"
+                            className="h-8 w-8 p-0 text-gray-500 hover:text-[#72E118]"
                             onClick={() => setEditingVehicle(vehicle)}
                             data-testid={`button-edit-${vehicle.id}`}
                           >
@@ -634,7 +641,7 @@ export default function Admin() {
                       <Badge 
                         className={`text-white font-medium shadow-lg px-2.5 py-1 ${
                           vehicle.statusBanner === 'new' ? 'bg-blue-500' :
-                          vehicle.statusBanner === 'low-miles' ? 'bg-emerald-500' :
+                          vehicle.statusBanner === 'low-miles' ? 'bg-[#72E118]' :
                           vehicle.statusBanner === 'local-trade' ? 'bg-violet-500' :
                           vehicle.statusBanner === 'just-reduced' ? 'bg-rose-500' :
                           vehicle.statusBanner === 'sold' ? 'bg-gray-500' :
@@ -675,29 +682,29 @@ export default function Admin() {
                 
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-[#72E118] transition-colors line-clamp-1">
                       {vehicle.year} {vehicle.make} {vehicle.model}
                     </h3>
-                    <span className="text-lg font-bold text-emerald-600">
+                    <span className="text-lg font-bold text-[#72E118]">
                       {formatPrice(vehicle.price)}
                     </span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
                     <div className="flex items-center gap-1.5 text-gray-600">
-                      <Gauge className="h-3.5 w-3.5 text-emerald-500" />
+                      <Gauge className="h-3.5 w-3.5 text-[#72E118]" />
                       <span>{vehicle.mileage?.toLocaleString()} mi</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-600">
-                      <Palette className="h-3.5 w-3.5 text-emerald-500" />
+                      <Palette className="h-3.5 w-3.5 text-[#72E118]" />
                       <span className="truncate">{vehicle.exteriorColor}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-600">
-                      <Tag className="h-3.5 w-3.5 text-emerald-500" />
+                      <Tag className="h-3.5 w-3.5 text-[#72E118]" />
                       <span className="truncate">{vehicle.stockNumber}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-600">
-                      <Settings2 className="h-3.5 w-3.5 text-emerald-500" />
+                      <Settings2 className="h-3.5 w-3.5 text-[#72E118]" />
                       <span className="truncate">{vehicle.transmission}</span>
                     </div>
                   </div>
@@ -707,7 +714,7 @@ export default function Admin() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-gray-600 hover:text-emerald-600 hover:border-emerald-600 transition-colors"
+                        className="text-gray-600 hover:text-[#72E118] hover:border-[#72E118] transition-colors"
                         onClick={() => setEditingVehicle(vehicle)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
@@ -715,7 +722,7 @@ export default function Admin() {
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                        className="bg-[#72E118] hover:bg-[#5CBF12] text-white transition-colors"
                         onClick={() => setEditingVehicle(vehicle)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
@@ -747,7 +754,7 @@ export default function Admin() {
               <p className="text-gray-500 mb-6">Try adjusting your search filters or add a new vehicle.</p>
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-white"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add New Vehicle

@@ -45,14 +45,22 @@ function AdminSubmissions() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check authentication
+  // Check authentication - use same endpoint as main admin page
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/admin/check');
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
         if (response.ok) {
-          setIsAuthenticated(true);
-          fetchData();
+          const data = await response.json();
+          if (data.isAuthenticated) {
+            setIsAuthenticated(true);
+            fetchData();
+          } else {
+            setLocation('/admin');
+          }
         } else {
           setLocation('/admin');
         }
