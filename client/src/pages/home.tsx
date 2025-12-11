@@ -109,7 +109,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg"
-                className="bg-[#72E118] hover:bg-[#5CBF12] text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-[#72E118]/30 hover:shadow-[#72E118]/40 transition-all duration-300"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 px-8 py-6 text-lg font-semibold shadow-lg shadow-[#72E118]/30 hover:shadow-[#72E118]/40 transition-all duration-300"
                 onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 <Search className="mr-2 h-5 w-5" />
@@ -317,7 +317,7 @@ export default function Home() {
               <div className="space-y-4">
                 <Button 
                   size="lg"
-                  className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-lg shadow-[#72E118]/25 transition-all duration-300"
+                  className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 shadow-lg shadow-[#72E118]/25 transition-all duration-300"
                   onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   <Car className="mr-2 h-5 w-5" />
@@ -327,7 +327,7 @@ export default function Home() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="w-full border-2 border-[#72E118] text-[#72E118] hover:bg-[#72E118] hover:text-white transition-all duration-300"
+                  className="w-full border-2 border-[#72E118] text-[#72E118] hover:bg-[#72E118] hover:text-gray-900 transition-all duration-300"
                   onClick={() => window.location.href = '/financing'}
                 >
                   <Calculator className="mr-2 h-5 w-5" />

@@ -289,7 +289,7 @@ export default function Admin() {
             <div className="flex items-center gap-3">
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-[#72E118] hover:bg-[#5CBF12] text-white font-medium shadow-lg shadow-[#72E118]/30 transition-all duration-300"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 font-medium shadow-lg shadow-[#72E118]/30 transition-all duration-300"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Vehicle
@@ -398,7 +398,7 @@ export default function Admin() {
                   size="sm"
                   variant={viewMode === "tiles" ? "default" : "ghost"}
                   onClick={() => setViewMode("tiles")}
-                  className={`h-8 px-3 ${viewMode === "tiles" ? "bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  className={`h-8 px-3 ${viewMode === "tiles" ? "bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
                   data-testid="button-view-tiles"
                 >
                   <LayoutGrid className="h-4 w-4 mr-1.5" />
@@ -408,7 +408,7 @@ export default function Admin() {
                   size="sm"
                   variant={viewMode === "table" ? "default" : "ghost"}
                   onClick={() => setViewMode("table")}
-                  className={`h-8 px-3 ${viewMode === "table" ? "bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
+                  className={`h-8 px-3 ${viewMode === "table" ? "bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`}
                   data-testid="button-view-table"
                 >
                   <TableIcon className="h-4 w-4 mr-1.5" />
@@ -722,7 +722,7 @@ export default function Admin() {
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-[#72E118] hover:bg-[#5CBF12] text-white transition-colors"
+                        className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 transition-colors"
                         onClick={() => setEditingVehicle(vehicle)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
@@ -754,7 +754,7 @@ export default function Admin() {
               <p className="text-gray-500 mb-6">Try adjusting your search filters or add a new vehicle.</p>
               <Button 
                 onClick={() => setShowAddModal(true)}
-                className="bg-[#72E118] hover:bg-[#5CBF12] text-white"
+                className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add New Vehicle

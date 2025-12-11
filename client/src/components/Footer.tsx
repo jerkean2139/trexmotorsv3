@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { MapPin, Phone, Mail, Clock, Facebook } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Facebook, Settings } from "lucide-react";
 import { SiGoogle, SiYelp } from "react-icons/si";
 
 export default function Footer() {
@@ -92,6 +92,11 @@ export default function Footer() {
               <a href="https://keanonbiz.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#72E118] transition-colors">
                 Design by keanonbiz.com
               </a>
+              <span className="text-gray-700">|</span>
+              <Link href="/admin" className="text-gray-500 hover:text-[#72E118] transition-colors flex items-center gap-1">
+                <Settings className="h-3 w-3" />
+                Admin
+              </Link>
             </div>
           </div>
         </div>

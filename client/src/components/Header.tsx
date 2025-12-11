@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Car, Calculator, Users, Phone, Settings } from "lucide-react";
+import { Menu, Car, Calculator, Users, Phone } from "lucide-react";
 
 export default function Header() {
   const [location] = useLocation();
@@ -61,18 +61,13 @@ export default function Header() {
                 </button>
               )
             ))}
-            <Link href="/admin">
-              <Button variant="ghost" size="sm" className="ml-2 text-gray-500 hover:text-gray-700">
-                <Settings className="h-4 w-4" />
-              </Button>
-            </Link>
           </nav>
 
           {/* CTA Button - Desktop */}
           <div className="hidden md:block">
             <Button 
               onClick={() => scrollToSection('inventory')}
-              className="bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-lg shadow-[#72E118]/25 hover:shadow-[#72E118]/40 transition-all duration-300"
+              className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900 shadow-lg shadow-[#72E118]/25 hover:shadow-[#72E118]/40 transition-all duration-300"
             >
               Browse Inventory
             </Button>
@@ -132,7 +127,7 @@ export default function Header() {
                         scrollToSection('inventory');
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-white"
+                      className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-gray-900"
                     >
                       Browse Inventory
                     </Button>
