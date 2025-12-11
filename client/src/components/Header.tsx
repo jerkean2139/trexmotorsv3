@@ -45,19 +45,19 @@ export default function Header() {
             {navItems.map((item) => (
               item.href ? (
                 <Link key={item.label} href={item.href}>
-                  <button className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors duration-200 rounded-lg hover:bg-emerald-50 group">
+                  <button className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#72E118] transition-colors duration-200 rounded-lg hover:bg-[#72E118]/10 group">
                     {item.label}
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#72E118] transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
                   </button>
                 </Link>
               ) : (
                 <button 
                   key={item.label}
                   onClick={item.action}
-                  className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors duration-200 rounded-lg hover:bg-emerald-50 group"
+                  className="relative px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#72E118] transition-colors duration-200 rounded-lg hover:bg-[#72E118]/10 group"
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#72E118] transition-all duration-300 group-hover:w-3/4 rounded-full"></span>
                 </button>
               )
             ))}
@@ -72,7 +72,7 @@ export default function Header() {
           <div className="hidden md:block">
             <Button 
               onClick={() => scrollToSection('inventory')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 transition-all duration-300"
+              className="bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-lg shadow-[#72E118]/25 hover:shadow-[#72E118]/40 transition-all duration-300"
             >
               Browse Inventory
             </Button>
@@ -104,7 +104,7 @@ export default function Header() {
                         <Link key={item.label} href={item.href}>
                           <button 
                             onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-[#72E118] hover:bg-[#72E118]/10 rounded-lg transition-colors"
                           >
                             <Icon className="h-5 w-5" />
                             {item.label}
@@ -117,7 +117,7 @@ export default function Header() {
                             item.action?.();
                             setMobileMenuOpen(false);
                           }}
-                          className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          className="flex items-center gap-3 w-full px-4 py-3 text-base font-medium text-gray-700 hover:text-[#72E118] hover:bg-[#72E118]/10 rounded-lg transition-colors"
                         >
                           <Icon className="h-5 w-5" />
                           {item.label}
@@ -132,7 +132,7 @@ export default function Header() {
                         scrollToSection('inventory');
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-white"
                     >
                       Browse Inventory
                     </Button>

@@ -207,7 +207,7 @@ export default function Home() {
       <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-emerald-100 text-emerald-700 rounded-full">
+            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-[#72E118]/20 text-[#72E118] rounded-full">
               Why Choose Us
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">About T-Rex Motors</h2>
@@ -217,8 +217,8 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-[#72E118]/30 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Award className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">17+ Years of Excellence</h3>
@@ -227,8 +227,8 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-[#72E118]/30 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Handshake className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Trusted Service</h3>
@@ -237,8 +237,8 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="group p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-xl hover:border-[#72E118]/30 transition-all duration-300">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#72E118] to-[#5CBF12] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <DollarSign className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Competitive Pricing</h3>
@@ -254,7 +254,7 @@ export default function Home() {
       <section id="contact" className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-emerald-100 text-emerald-700 rounded-full">
+            <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium bg-[#72E118]/20 text-[#72E118] rounded-full">
               Get In Touch
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Visit T-Rex Motors</h2>
@@ -268,8 +268,8 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-gray-900 mb-6">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-6 w-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-[#72E118]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-6 w-6 text-[#72E118]" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Address</p>
@@ -278,28 +278,28 @@ export default function Home() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-6 w-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-[#72E118]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="h-6 w-6 text-[#72E118]" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Phone</p>
-                    <a href="tel:7652382887" className="text-gray-600 hover:text-emerald-600 transition-colors">(765) 238-2887</a>
+                    <a href="tel:7652382887" className="text-gray-600 hover:text-[#72E118] transition-colors">(765) 238-2887</a>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="h-6 w-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-[#72E118]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="h-6 w-6 text-[#72E118]" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:info@trexmotors.com" className="text-gray-600 hover:text-emerald-600 transition-colors">info@trexmotors.com</a>
+                    <a href="mailto:info@trexmotors.com" className="text-gray-600 hover:text-[#72E118] transition-colors">info@trexmotors.com</a>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Clock className="h-6 w-6 text-emerald-600" />
+                  <div className="w-12 h-12 bg-[#72E118]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock className="h-6 w-6 text-[#72E118]" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Hours</p>
@@ -317,7 +317,7 @@ export default function Home() {
               <div className="space-y-4">
                 <Button 
                   size="lg"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 transition-all duration-300"
+                  className="w-full bg-[#72E118] hover:bg-[#5CBF12] text-white shadow-lg shadow-[#72E118]/25 transition-all duration-300"
                   onClick={() => document.getElementById('inventory')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   <Car className="mr-2 h-5 w-5" />
@@ -327,7 +327,7 @@ export default function Home() {
                 <Button 
                   size="lg"
                   variant="outline"
-                  className="w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all duration-300"
+                  className="w-full border-2 border-[#72E118] text-[#72E118] hover:bg-[#72E118] hover:text-white transition-all duration-300"
                   onClick={() => window.location.href = '/financing'}
                 >
                   <Calculator className="mr-2 h-5 w-5" />
@@ -344,8 +344,8 @@ export default function Home() {
                 </Button>
               </div>
               
-              <div className="mt-8 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                <p className="text-sm text-emerald-800 text-center">
+              <div className="mt-8 p-4 bg-[#72E118]/10 rounded-xl border border-[#72E118]/20">
+                <p className="text-sm text-gray-800 text-center">
                   <span className="font-semibold">Ready to find your next car?</span><br />
                   Visit us today for a test drive!
                 </p>
