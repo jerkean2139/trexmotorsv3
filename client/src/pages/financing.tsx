@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
+import { SEOHead, BreadcrumbSchema } from "@/components/SEOHead";
 
 interface FinancingFormData {
   firstName: string;
@@ -81,6 +82,15 @@ function FinancingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Auto Financing | Get Pre-Approved Today | T-Rex Motors Richmond"
+        description="Apply for auto financing at T-Rex Motors in Richmond, VA. Easy pre-approval process, competitive rates, and flexible terms for all credit types. Get started today!"
+        canonical="https://trexmotors.com/financing"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://trexmotors.com/" },
+        { name: "Financing", url: "https://trexmotors.com/financing" }
+      ]} />
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

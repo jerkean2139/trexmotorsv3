@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Calculator, Award, Handshake, DollarSign, MapPin, Phone, Mail, Clock, Car, ArrowRight } from "lucide-react";
 import type { Vehicle } from "@shared/schema";
 import { getVehicles, getFeaturedVehicles } from "@/lib/exportedVehicles";
+import { SEOHead, LocalBusinessSchema, BreadcrumbSchema, WebVitalsMonitor } from "@/components/SEOHead";
 
 export default function Home() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -72,6 +73,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="T-Rex Motors - Quality Used Cars in Richmond, VA"
+        description="Richmond's premier used car dealership. Browse our extensive inventory of quality pre-owned cars, trucks, and SUVs. Competitive pricing and flexible financing options since 2008."
+        canonical="https://trexmotors.com/"
+      />
+      <LocalBusinessSchema />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://trexmotors.com/" }
+      ]} />
+      <WebVitalsMonitor />
       <Header />
       
       {/* Hero Section */}

@@ -319,6 +319,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO Routes - Sitemap
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const vehicles = await storage.getVehicles({});
+      const baseUrl = "https://trexmotors.com";
+      
+      let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/financing</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/inventory</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+
+      // Add individual vehicle pages
+      for (const vehicle of vehicles.vehicles) {
+        const vehicleUrl = `${baseUrl}/vehicle/${vehicle.id}`;
+        const vehicleTitle = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+        sitemap += `
+  <url>
+    <loc>${vehicleUrl}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>`;
+        
+        if (vehicle.images && vehicle.images.length > 0) {
+          sitemap += `
+    <image:image>
+      <image:loc>${vehicle.images[0]}</image:loc>
+      <image:title>${vehicleTitle}</image:title>
+    </image:image>`;
+        }
+        sitemap += `
+  </url>`;
+      }
+
+      sitemap += `
+</urlset>`;
+
+      res.set("Content-Type", "application/xml");
+      res.send(sitemap);
+    } catch (error) {
+      console.error("Error generating sitemap:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  // Robots.txt
+  app.get("/robots.txt", (req, res) => {
+    const robotsTxt = `# T-Rex Motors - Richmond's Premier Used Car Dealership
+# https://trexmotors.com
+
+User-agent: *
+Allow: /
+
+Crawl-delay: 1
+
+Disallow: /admin
+Disallow: /api/
+
+Allow: /api/vehicles$
+Allow: /api/vehicles/featured$
+
+Sitemap: https://trexmotors.com/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+`;
+    res.set("Content-Type", "text/plain");
+    res.send(robotsTxt);
+  });
+
+  // Web Vitals RUM endpoint
+  app.post("/api/rum", (req, res) => {
+    // In production, you'd send this to an analytics service
+    console.log("Web Vitals:", req.body);
+    res.sendStatus(204);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
