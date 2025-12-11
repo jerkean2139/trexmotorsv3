@@ -90,3 +90,42 @@ Preferred communication style: Simple, everyday language.
 ## Admin Credentials
 - Username: `admin`
 - Password: `trex2025!` (or custom password set in database)
+
+# SEO/AEO/GEO Implementation (December 2025)
+
+## Technical SEO Features
+- **Dynamic Sitemap**: Auto-generated at `/sitemap.xml` with all pages and vehicles
+- **Robots.txt**: Served at `/robots.txt` with proper crawl directives
+- **Canonical URLs**: Set on all pages via SEOHead component
+- **Meta Tags**: Unique title, description for each page
+- **Open Graph**: Full OG tags for social sharing (og:title, og:description, og:image, og:url)
+- **Twitter Cards**: summary_large_image format for Twitter sharing
+
+## Structured Data (JSON-LD)
+- **AutoDealer Schema**: Full local business data with NAP, hours, geo coordinates
+- **WebSite Schema**: With SearchAction for Google sitelinks search box
+- **BreadcrumbList**: Navigation breadcrumbs on all pages
+- **Vehicle Schema**: Product structured data for individual vehicles
+
+## Local SEO (GEO)
+- **Geo Tags**: geo.region, geo.placename, geo.position, ICBM coordinates
+- **LocalBusiness Schema**: Address, phone, hours, service area (50mi radius)
+- **NAP Consistency**: Name, Address, Phone consistent across site and schema
+
+## Performance Optimizations
+- **Preconnect**: fonts.googleapis.com, fonts.gstatic.com, storage.googleapis.com
+- **DNS Prefetch**: images.unsplash.com for hero images
+- **Font Loading**: display=swap for non-blocking font loading
+- **Web Vitals Monitoring**: RUM endpoint at `/api/rum` for Core Web Vitals tracking
+
+## Brand Colors
+- **Primary Green**: #72E118 (HSL: 93, 81%, 49%)
+- **Dark Green**: #5CBF12 (for hover states)
+- **Light Green**: #8EF442 (for accents)
+
+## SEO Components
+- `SEOHead`: Dynamic meta tag management per page
+- `LocalBusinessSchema`: JSON-LD for local business
+- `BreadcrumbSchema`: JSON-LD for breadcrumb navigation
+- `VehicleSchema`: JSON-LD for vehicle product pages
+- `WebVitalsMonitor`: Real User Monitoring for Core Web Vitals
