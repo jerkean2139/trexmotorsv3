@@ -7,10 +7,12 @@ This is a comprehensive **multi-tenant** used car dealership website system for 
 ✓ **Full Application Completed** - Professional dealership website with complete functionality
 ✓ **Vehicle Inventory System** - Dealership-scoped vehicles with comprehensive data
 ✓ **Search & Filter System** - Advanced filtering by make, year range, price range with real-time results
-✓ **Admin Dashboard** - Complete vehicle management with dealership switcher and authentication (admin/trex2025!)
+✓ **Admin Dashboard** - Complete vehicle management with dealership switcher, bulk actions, and authentication (admin/trex2025!)
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
 ✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
+✓ **Security Hardening** - Rate limiting, bcrypt password hashing, session validation
+✓ **Enhanced UX** - Image lightbox with zoom, form validation with inline errors, bulk admin actions
 
 ## Multi-Tenant Architecture (December 2025)
 - **Dealerships Table**: Central registry of all dealership locations with unique slugs
@@ -85,8 +87,14 @@ Preferred communication style: Simple, everyday language.
 - **Uppy.js**: File upload interface with AWS S3 integration for direct uploads
 
 ## Authentication & Security
-- **bcrypt**: Password hashing for admin authentication
+- **bcrypt**: Password hashing for admin authentication with database-stored hashed passwords
 - **express-session**: Session management for maintaining admin login state
+- **express-rate-limit**: Rate limiting protection:
+  - Auth endpoints: 5 attempts per 15 minutes
+  - Form submissions: 10 per hour per IP
+  - General API: 100 requests per minute
+- **Trust Proxy**: Configured for Railway/reverse proxy deployment
+- **Session Secret Validation**: Required SESSION_SECRET in production environment
 
 ## Development Tools
 - **Replit Integration**: Development environment optimization with cartographer and error modal plugins

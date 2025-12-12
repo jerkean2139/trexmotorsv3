@@ -108,7 +108,7 @@ export default function Admin() {
     }
   });
 
-  // Login mutation
+  // Login mutation with proper error handling for rate limiting
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
       const response = await fetch('/api/auth/login', {
@@ -118,7 +118,11 @@ export default function Admin() {
         body: JSON.stringify(credentials)
       });
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || (response.status === 429 
+          ? 'Too many login attempts. Please try again later.' 
+          : 'Invalid credentials');
+        throw new Error(errorMessage);
       }
       return response.json();
     },
@@ -131,7 +135,7 @@ export default function Admin() {
     },
     onError: (error) => {
       console.error("Login error:", error);
-      toast({ title: "Error", description: "Invalid credentials", variant: "destructive" });
+      toast({ title: "Error", description: error.message || "Invalid credentials", variant: "destructive" });
     },
   });
 
