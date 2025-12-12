@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminVehicleForm from "@/components/AdminVehicleForm";
-import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2 } from "lucide-react";
+import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2, CheckSquare, Square } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -38,6 +39,7 @@ export default function Admin() {
     return "tiles";
   });
   const [editingPrice, setEditingPrice] = useState<{ id: string; value: string } | null>(null);
+  const [selectedVehicleIds, setSelectedVehicleIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -202,6 +204,81 @@ export default function Admin() {
   // Handle inline status banner change
   const handleStatusBannerChange = (vehicleId: string, newBanner: string | null) => {
     inlineUpdateMutation.mutate({ id: vehicleId, updates: { statusBanner: newBanner } });
+  };
+
+  // Bulk update mutation
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({ ids, updates }: { ids: string[]; updates: Partial<Vehicle> }) => {
+      const results = await Promise.all(
+        ids.map(id => apiRequest("PUT", `/api/vehicles/${id}`, updates))
+      );
+      return results;
+    },
+    onSuccess: (_, { ids, updates }) => {
+      const fieldName = Object.keys(updates)[0];
+      toast({ title: "Bulk Update Complete", description: `Updated ${ids.length} vehicles (${fieldName})` });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
+      setSelectedVehicleIds(new Set());
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to update some vehicles", variant: "destructive" });
+    },
+  });
+
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const results = await Promise.all(
+        ids.map(id => apiRequest("DELETE", `/api/vehicles/${id}`))
+      );
+      return results;
+    },
+    onSuccess: (_, ids) => {
+      toast({ title: "Deleted", description: `Deleted ${ids.length} vehicles` });
+      queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
+      setSelectedVehicleIds(new Set());
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to delete some vehicles", variant: "destructive" });
+    },
+  });
+
+  // Toggle vehicle selection
+  const toggleVehicleSelection = (vehicleId: string) => {
+    setSelectedVehicleIds(prev => {
+      const next = new Set(prev);
+      if (next.has(vehicleId)) {
+        next.delete(vehicleId);
+      } else {
+        next.add(vehicleId);
+      }
+      return next;
+    });
+  };
+
+  // Select all filtered vehicles
+  const selectAllVehicles = () => {
+    if (selectedVehicleIds.size === filteredVehicles.length) {
+      setSelectedVehicleIds(new Set());
+    } else {
+      setSelectedVehicleIds(new Set(filteredVehicles.map((v: Vehicle) => v.id)));
+    }
+  };
+
+  // Handle bulk status change
+  const handleBulkStatusChange = (status: string) => {
+    const ids = Array.from(selectedVehicleIds);
+    if (ids.length > 0) {
+      bulkUpdateMutation.mutate({ ids, updates: { status } });
+    }
+  };
+
+  // Handle bulk delete
+  const handleBulkDelete = () => {
+    const ids = Array.from(selectedVehicleIds);
+    if (ids.length > 0 && confirm(`Are you sure you want to delete ${ids.length} vehicles? This cannot be undone.`)) {
+      bulkDeleteMutation.mutate(ids);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -530,6 +607,54 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        {/* Bulk Actions Bar */}
+        {selectedVehicleIds.size > 0 && (
+          <Card className="border-0 shadow-md bg-[#72E118]/10 mb-4">
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckSquare className="h-5 w-5 text-[#72E118]" />
+                  <span className="font-medium text-gray-900">
+                    {selectedVehicleIds.size} vehicle{selectedVehicleIds.size > 1 ? 's' : ''} selected
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select onValueChange={handleBulkStatusChange}>
+                    <SelectTrigger className="h-9 w-[140px] text-sm border-gray-200" data-testid="bulk-status-select">
+                      <SelectValue placeholder="Set Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="available">Set Available</SelectItem>
+                      <SelectItem value="pending">Set Pending</SelectItem>
+                      <SelectItem value="sold">Set Sold</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    className="h-9 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                    disabled={bulkDeleteMutation.isPending}
+                    data-testid="button-bulk-delete"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete Selected
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedVehicleIds(new Set())}
+                    className="h-9 text-gray-600"
+                    data-testid="button-clear-selection"
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Vehicle Display - Tiles or Table */}
         {isLoading ? (
           viewMode === "tiles" ? (
@@ -555,6 +680,13 @@ export default function Admin() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50 hover:bg-gray-50">
+                    <TableHead className="font-semibold text-gray-700 w-[40px]">
+                      <Checkbox 
+                        checked={selectedVehicleIds.size === filteredVehicles.length && filteredVehicles.length > 0}
+                        onCheckedChange={selectAllVehicles}
+                        data-testid="checkbox-select-all"
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold text-gray-700 w-[50px]">Image</TableHead>
                     <TableHead className="font-semibold text-gray-700">Vehicle</TableHead>
                     <TableHead className="font-semibold text-gray-700 w-[130px]">Price</TableHead>
@@ -567,7 +699,14 @@ export default function Admin() {
                 </TableHeader>
                 <TableBody>
                   {filteredVehicles.map((vehicle: Vehicle) => (
-                    <TableRow key={vehicle.id} className="hover:bg-gray-50" data-testid={`table-row-${vehicle.id}`}>
+                    <TableRow key={vehicle.id} className={`hover:bg-gray-50 ${selectedVehicleIds.has(vehicle.id) ? 'bg-[#72E118]/5' : ''}`} data-testid={`table-row-${vehicle.id}`}>
+                      <TableCell className="py-2">
+                        <Checkbox 
+                          checked={selectedVehicleIds.has(vehicle.id)}
+                          onCheckedChange={() => toggleVehicleSelection(vehicle.id)}
+                          data-testid={`checkbox-${vehicle.id}`}
+                        />
+                      </TableCell>
                       <TableCell className="py-2">
                         {vehicle.images?.[0] ? (
                           <img 

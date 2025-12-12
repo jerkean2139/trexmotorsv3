@@ -1,6 +1,6 @@
 import { vehicles, inquiries, users, financingApplications, dealerships, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication, type Dealership, type InsertDealership } from "@shared/schema";
 import { db } from "./db";
-import { eq, like, and, or, gte, lte, desc, asc, sql } from "drizzle-orm";
+import { eq, like, and, or, gte, lte, desc, asc, sql, SQL } from "drizzle-orm";
 
 export interface VehicleFilters {
   make?: string;
@@ -86,10 +86,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVehicles(dealershipId: string | null, filters?: VehicleFilters, sort?: VehicleSortOptions, limit = 50, offset = 0): Promise<Vehicle[]> {
-    let query = db.select().from(vehicles);
-
-    // Apply filters
-    const conditions = [];
+    // Build conditions array using proper SQL type for Drizzle compatibility
+    const conditions: SQL[] = [];
     
     if (dealershipId) {
       conditions.push(eq(vehicles.dealershipId, dealershipId));
@@ -121,44 +119,42 @@ export class DatabaseStorage implements IStorage {
     
     if (filters?.searchQuery) {
       const searchTerm = `%${filters.searchQuery}%`;
-      conditions.push(
-        or(
-          like(vehicles.make, searchTerm),
-          like(vehicles.model, searchTerm),
-          like(vehicles.trim, searchTerm)
-        )
+      const searchCondition = or(
+        like(vehicles.make, searchTerm),
+        like(vehicles.model, searchTerm),
+        like(vehicles.trim, searchTerm)
       );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
     }
 
+    // Determine sort order
+    const getOrderBy = () => {
+      switch (sort?.sortBy) {
+        case 'price-asc': return asc(vehicles.price);
+        case 'price-desc': return desc(vehicles.price);
+        case 'year-desc': return desc(vehicles.year);
+        case 'year-asc': return asc(vehicles.year);
+        case 'mileage-asc': return asc(vehicles.mileage);
+        case 'mileage-desc': return desc(vehicles.mileage);
+        default: return desc(vehicles.createdAt);
+      }
+    };
+
+    // Build and execute query
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return await db.select().from(vehicles)
+        .where(and(...conditions))
+        .orderBy(getOrderBy())
+        .limit(limit)
+        .offset(offset);
     }
-
-    // Apply sorting
-    switch (sort?.sortBy) {
-      case 'price-asc':
-        query = query.orderBy(asc(vehicles.price));
-        break;
-      case 'price-desc':
-        query = query.orderBy(desc(vehicles.price));
-        break;
-      case 'year-desc':
-        query = query.orderBy(desc(vehicles.year));
-        break;
-      case 'year-asc':
-        query = query.orderBy(asc(vehicles.year));
-        break;
-      case 'mileage-asc':
-        query = query.orderBy(asc(vehicles.mileage));
-        break;
-      case 'mileage-desc':
-        query = query.orderBy(desc(vehicles.mileage));
-        break;
-      default:
-        query = query.orderBy(desc(vehicles.createdAt));
-    }
-
-    return await query.limit(limit).offset(offset);
+    
+    return await db.select().from(vehicles)
+      .orderBy(getOrderBy())
+      .limit(limit)
+      .offset(offset);
   }
 
   async getVehicleById(id: string): Promise<Vehicle | undefined> {
@@ -189,9 +185,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVehicleCount(dealershipId: string | null, filters?: VehicleFilters): Promise<number> {
-    let query = db.select({ count: sql`count(*)` }).from(vehicles);
-
-    const conditions = [];
+    // Build conditions array using proper SQL type for Drizzle compatibility
+    const conditions: SQL[] = [];
     
     if (dealershipId) {
       conditions.push(eq(vehicles.dealershipId, dealershipId));
@@ -223,20 +218,25 @@ export class DatabaseStorage implements IStorage {
     
     if (filters?.searchQuery) {
       const searchTerm = `%${filters.searchQuery}%`;
-      conditions.push(
-        or(
-          like(vehicles.make, searchTerm),
-          like(vehicles.model, searchTerm),
-          like(vehicles.trim, searchTerm)
-        )
+      const searchCondition = or(
+        like(vehicles.make, searchTerm),
+        like(vehicles.model, searchTerm),
+        like(vehicles.trim, searchTerm)
       );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
     }
 
+    // Execute count query
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      const [result] = await db.select({ count: sql`count(*)` })
+        .from(vehicles)
+        .where(and(...conditions));
+      return Number(result.count);
     }
 
-    const [result] = await query;
+    const [result] = await db.select({ count: sql`count(*)` }).from(vehicles);
     return Number(result.count);
   }
 

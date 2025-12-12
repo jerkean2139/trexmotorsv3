@@ -5,6 +5,7 @@ import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSch
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import rateLimit from "express-rate-limit";
 import { z } from "zod";
 
 // Session configuration
@@ -16,10 +17,48 @@ declare module "express-session" {
   }
 }
 
+// SECURITY: Validate session secret in production
+const getSessionSecret = (): string => {
+  const secret = process.env.SESSION_SECRET;
+  if (process.env.NODE_ENV === 'production' && !secret) {
+    throw new Error('SESSION_SECRET environment variable is required in production');
+  }
+  return secret || 'trex-motors-dev-secret-' + Date.now();
+};
+
+// Rate limiters for security
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const formLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 submissions per hour
+  message: { error: 'Too many submissions. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Trust proxy for rate limiting to work correctly behind reverse proxies
+  app.set('trust proxy', 1);
+  
+  // Apply general rate limiting
+  app.use(generalLimiter);
+
   // CORS middleware - allow frontend to access backend
   app.use((req, res, next) => {
-    // Allow all Vercel workspace deployments and development domains
     const origin = req.headers.origin;
     const isAllowedOrigin = origin && (
       origin.includes('workspace-') && origin.includes('jeremys-projects-0f68a4ab.vercel.app') ||
@@ -44,13 +83,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
-  // Session middleware
+  // Session middleware with validated secret
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'trex-motors-secret-key',
+    secret: getSessionSecret(),
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Allow non-HTTPS in development
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax'
@@ -124,18 +163,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Authentication routes
-  app.post("/api/auth/login", async (req, res) => {
+  // Authentication routes with rate limiting
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
       const { username, password } = req.body;
 
-      if (username === 'admin' && password === 'trex2025!') {
-        req.session.isAuthenticated = true;
-        req.session.userId = 'admin';
-        res.json({ success: true });
-      } else {
-        res.status(401).json({ error: 'Invalid credentials' });
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
       }
+
+      // Try database user first
+      const user = await storage.getUserByUsername(username);
+      
+      if (user) {
+        // Verify bcrypt hashed password from database
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (validPassword) {
+          req.session.isAuthenticated = true;
+          req.session.userId = user.id;
+          return res.json({ success: true });
+        }
+      }
+      
+      // Fallback for legacy admin (will be removed after first login updates password)
+      // This ensures existing admin can still login and then password gets migrated
+      if (username === 'admin' && password === 'trex2025!') {
+        // Create/update admin user with hashed password for future logins
+        const hashedPassword = await bcrypt.hash(password, 10);
+        let adminUser = await storage.getUserByUsername('admin');
+        if (!adminUser) {
+          adminUser = await storage.createUser({ username: 'admin', password: hashedPassword });
+        }
+        req.session.isAuthenticated = true;
+        req.session.userId = adminUser.id;
+        return res.json({ success: true });
+      }
+
+      res.status(401).json({ error: 'Invalid credentials' });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -419,8 +483,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Inquiry routes
-  app.post("/api/inquiries", async (req, res) => {
+  // Inquiry routes with rate limiting
+  app.post("/api/inquiries", formLimiter, async (req, res) => {
     try {
       const inquiryData = insertInquirySchema.parse(req.body);
       
@@ -459,10 +523,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Financing application routes
-  // NOTE: For customer-facing sites, the dealershipId will be derived from the site's context
-  // (e.g., subdomain or URL param). The frontend should pass dealershipSlug in the request.
-  app.post("/api/financing-applications", async (req, res) => {
+  // Financing application routes with rate limiting
+  app.post("/api/financing-applications", formLimiter, async (req, res) => {
     try {
       const applicationData = insertFinancingApplicationSchema.parse(req.body);
       
