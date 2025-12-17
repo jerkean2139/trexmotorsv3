@@ -1,4 +1,4 @@
-import { vehicles, inquiries, users, financingApplications, dealerships, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication, type Dealership, type InsertDealership } from "@shared/schema";
+import { vehicles, inquiries, users, financingApplications, dealerships, auditLogs, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication, type Dealership, type InsertDealership, type AuditLog, type InsertAuditLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, or, gte, lte, desc, asc, sql, SQL } from "drizzle-orm";
 
@@ -40,6 +40,10 @@ export interface IStorage {
   
   createFinancingApplication(application: InsertFinancingApplication): Promise<FinancingApplication>;
   getFinancingApplications(dealershipId: string | null): Promise<FinancingApplication[]>;
+  
+  // Audit logging
+  createAuditLog(log: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(dealershipId: string | null, limit?: number): Promise<AuditLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -295,6 +299,31 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(financingApplications)
       .orderBy(desc(financingApplications.createdAt));
+  }
+
+  // Audit logging methods
+  async createAuditLog(log: InsertAuditLog): Promise<AuditLog> {
+    const [newLog] = await db
+      .insert(auditLogs)
+      .values(log)
+      .returning();
+    return newLog;
+  }
+
+  async getAuditLogs(dealershipId: string | null, limit = 100): Promise<AuditLog[]> {
+    if (dealershipId) {
+      return await db
+        .select()
+        .from(auditLogs)
+        .where(eq(auditLogs.dealershipId, dealershipId))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit);
+    }
+    return await db
+      .select()
+      .from(auditLogs)
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit);
   }
 }
 

@@ -29,11 +29,12 @@ const selectTriggerStyle = "bg-gray-50 border-gray-200 focus:bg-white focus:bord
 interface AdminVehicleFormProps {
   vehicle?: Vehicle | null;
   dealershipId: string;
+  csrfToken: string | null;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export default function AdminVehicleForm({ vehicle, dealershipId, onSuccess, onCancel }: AdminVehicleFormProps) {
+export default function AdminVehicleForm({ vehicle, dealershipId, csrfToken, onSuccess, onCancel }: AdminVehicleFormProps) {
   const [formData, setFormData] = useState<InsertVehicle>({
     dealershipId: vehicle?.dealershipId || dealershipId,
     make: vehicle?.make || '',
@@ -63,12 +64,33 @@ export default function AdminVehicleForm({ vehicle, dealershipId, onSuccess, onC
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Helper function for admin requests with CSRF token
+  const adminRequest = async (method: string, url: string, body?: unknown) => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+    const response = await fetch(url, {
+      method,
+      headers,
+      credentials: 'include',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Request failed');
+    }
+    return response.json();
+  };
+
   const vehicleMutation = useMutation({
     mutationFn: async (data: InsertVehicle) => {
       if (vehicle) {
-        return apiRequest("PUT", `/api/vehicles/${vehicle.id}`, data);
+        return adminRequest("PUT", `/api/vehicles/${vehicle.id}`, data);
       } else {
-        return apiRequest("POST", "/api/vehicles", data);
+        return adminRequest("POST", "/api/vehicles", data);
       }
     },
     onSuccess: () => {

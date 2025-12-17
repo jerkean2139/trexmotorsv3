@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema } from "@shared/schema";
@@ -7,6 +7,17 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
+import crypto from "crypto";
+
+// CSRF Token utilities
+const generateCsrfToken = (): string => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const validateCsrfToken = (sessionToken: string | undefined, headerToken: string | undefined): boolean => {
+  if (!sessionToken || !headerToken) return false;
+  return crypto.timingSafeEqual(Buffer.from(sessionToken), Buffer.from(headerToken));
+};
 
 // Session configuration
 declare module "express-session" {
@@ -14,6 +25,7 @@ declare module "express-session" {
     isAuthenticated: boolean;
     userId: string;
     selectedDealershipId: string | null;
+    csrfToken: string;
   }
 }
 
@@ -57,22 +69,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply general rate limiting
   app.use(generalLimiter);
 
-  // CORS middleware - allow frontend to access backend
+  // CORS middleware - strict origin validation
+  // SECURITY: Only allow specific trusted origins
+  const getAllowedOrigins = (): string[] => {
+    const origins: string[] = [];
+    
+    // Development origins
+    if (process.env.NODE_ENV !== 'production') {
+      origins.push('http://localhost:5000', 'http://127.0.0.1:5000');
+    }
+    
+    // Production origins - add your Railway domain here when deployed
+    const productionOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+    origins.push(...productionOrigins);
+    
+    return origins;
+  };
+  
+  const allowedOrigins = getAllowedOrigins();
+  
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    const isAllowedOrigin = origin && (
-      origin.includes('workspace-') && origin.includes('jeremys-projects-0f68a4ab.vercel.app') ||
-      origin.includes('replit.dev') ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1')
-    );
     
-    if (isAllowedOrigin) {
-      res.setHeader('Access-Control-Allow-Origin', origin || '');
+    // Check if origin is in allowed list or if it's a same-origin request (no origin header)
+    const isAllowedOrigin = !origin || 
+      allowedOrigins.includes(origin) ||
+      // Allow Replit dev domains for development
+      (process.env.NODE_ENV !== 'production' && origin?.includes('replit.dev'));
+    
+    if (isAllowedOrigin && origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
     }
     
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-vercel-protection-bypass');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     
     if (req.method === 'OPTIONS') {
@@ -104,6 +134,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
+  // CSRF protection middleware for state-changing admin operations
+  const requireCsrf = (req: Request, res: Response, next: NextFunction) => {
+    const headerToken = req.headers['x-csrf-token'] as string | undefined;
+    const sessionToken = req.session?.csrfToken;
+    
+    if (!validateCsrfToken(sessionToken, headerToken)) {
+      return res.status(403).json({ error: 'Invalid CSRF token' });
+    }
+    next();
+  };
+
+  // Combined auth + CSRF middleware for protected admin routes
+  const requireAuthWithCsrf = [requireAuth, requireCsrf];
+
   // Object storage routes
   const objectStorageService = new ObjectStorageService();
 
@@ -133,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update vehicle with image URL after upload
-  app.put("/api/vehicles/:id/images", requireAuth, async (req, res) => {
+  app.put("/api/vehicles/:id/images", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       const { imageURLs } = req.body;
@@ -181,7 +225,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (validPassword) {
           req.session.isAuthenticated = true;
           req.session.userId = user.id;
-          return res.json({ success: true });
+          req.session.csrfToken = generateCsrfToken();
+          return res.json({ success: true, csrfToken: req.session.csrfToken });
         }
       }
       
@@ -196,7 +241,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         req.session.isAuthenticated = true;
         req.session.userId = adminUser.id;
-        return res.json({ success: true });
+        req.session.csrfToken = generateCsrfToken();
+        return res.json({ success: true, csrfToken: req.session.csrfToken });
       }
 
       res.status(401).json({ error: 'Invalid credentials' });
@@ -216,9 +262,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/check", (req, res) => {
+    // Generate CSRF token if authenticated and doesn't have one
+    if (req.session.isAuthenticated && !req.session.csrfToken) {
+      req.session.csrfToken = generateCsrfToken();
+    }
+    
     res.json({ 
       isAuthenticated: !!req.session.isAuthenticated,
-      selectedDealershipId: req.session.selectedDealershipId || null
+      selectedDealershipId: req.session.selectedDealershipId || null,
+      csrfToken: req.session.isAuthenticated ? req.session.csrfToken : undefined
     });
   });
 
@@ -291,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Set selected dealership for admin session
-  app.post("/api/admin/select-dealership", requireAuth, async (req, res) => {
+  app.post("/api/admin/select-dealership", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
       const { dealershipId } = req.body;
       
@@ -401,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vehicles", requireAuth, async (req, res) => {
+  app.post("/api/vehicles", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
       const vehicleData = insertVehicleSchema.parse(req.body);
       
@@ -415,6 +467,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...vehicleData,
         dealershipId,
       });
+      
+      // Audit log: vehicle creation
+      await storage.createAuditLog({
+        userId: req.session.userId!,
+        dealershipId,
+        action: 'create',
+        entityType: 'vehicle',
+        entityId: vehicle.id,
+        details: { make: vehicle.make, model: vehicle.model, year: vehicle.year, vin: vehicle.vin },
+        ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || null,
+        userAgent: req.headers['user-agent'] || null,
+      });
+      
       res.status(201).json(vehicle);
     } catch (error) {
       console.error("Error creating vehicle:", error);
@@ -425,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/vehicles/:id", requireAuth, async (req, res) => {
+  app.put("/api/vehicles/:id", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
       const vehicleData = insertVehicleSchema.partial().parse(req.body);
       
@@ -448,6 +513,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { dealershipId: _, ...safeVehicleData } = vehicleData as any;
       
       const vehicle = await storage.updateVehicle(req.params.id, safeVehicleData);
+      
+      // Audit log: vehicle update with full before/after context
+      const beforeState = {
+        make: existingVehicle.make,
+        model: existingVehicle.model,
+        year: existingVehicle.year,
+        price: existingVehicle.price,
+        mileage: existingVehicle.mileage,
+        vin: existingVehicle.vin,
+        stockNumber: existingVehicle.stockNumber,
+        status: existingVehicle.status,
+        isFeatured: existingVehicle.isFeatured,
+      };
+      await storage.createAuditLog({
+        userId: req.session.userId!,
+        dealershipId: selectedDealershipId,
+        action: 'update',
+        entityType: 'vehicle',
+        entityId: req.params.id,
+        details: { before: beforeState, changes: safeVehicleData, after: vehicle ? { make: vehicle.make, model: vehicle.model, year: vehicle.year, price: vehicle.price, mileage: vehicle.mileage, vin: vehicle.vin, stockNumber: vehicle.stockNumber, status: vehicle.status, isFeatured: vehicle.isFeatured } : null },
+        ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || null,
+        userAgent: req.headers['user-agent'] || null,
+      });
+      
       res.json(vehicle);
     } catch (error) {
       console.error("Error updating vehicle:", error);
@@ -458,7 +547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/vehicles/:id", requireAuth, async (req, res) => {
+  app.delete("/api/vehicles/:id", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
       // SECURITY: Verify vehicle belongs to admin's selected dealership
       const selectedDealershipId = req.session.selectedDealershipId;
@@ -475,10 +564,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Not authorized to delete this vehicle" });
       }
       
+      // Capture full pre-deletion snapshot for audit compliance
+      const deletedSnapshot = {
+        make: existingVehicle.make,
+        model: existingVehicle.model,
+        year: existingVehicle.year,
+        price: existingVehicle.price,
+        mileage: existingVehicle.mileage,
+        vin: existingVehicle.vin,
+        stockNumber: existingVehicle.stockNumber,
+        status: existingVehicle.status,
+        isFeatured: existingVehicle.isFeatured,
+        condition: existingVehicle.condition,
+        exteriorColor: existingVehicle.exteriorColor,
+        interiorColor: existingVehicle.interiorColor,
+        fuelType: existingVehicle.fuelType,
+        transmission: existingVehicle.transmission,
+      };
+      
       const success = await storage.deleteVehicle(req.params.id);
+      
+      // Audit log: vehicle deletion with full snapshot
+      await storage.createAuditLog({
+        userId: req.session.userId!,
+        dealershipId: selectedDealershipId,
+        action: 'delete',
+        entityType: 'vehicle',
+        entityId: req.params.id,
+        details: { deletedVehicle: deletedSnapshot },
+        ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || null,
+        userAgent: req.headers['user-agent'] || null,
+      });
+      
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting vehicle:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Audit log endpoint for admins - SECURITY: Strictly scoped to session dealership
+  app.get("/api/admin/audit-logs", requireAuth, async (req, res) => {
+    try {
+      // SECURITY: Only allow viewing logs for the currently selected dealership
+      // This prevents multi-tenant data leakage
+      const dealershipId = req.session.selectedDealershipId;
+      if (!dealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
+      
+      const limit = req.query.limit ? Math.min(parseInt(req.query.limit as string), 500) : 100;
+      const logs = await storage.getAuditLogs(dealershipId, limit);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

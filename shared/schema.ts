@@ -87,6 +87,20 @@ export const financingApplications = pgTable("financing_applications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Audit log for admin actions (security/compliance)
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  dealershipId: varchar("dealership_id").references(() => dealerships.id),
+  action: varchar("action", { length: 50 }).notNull(), // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, VIEW
+  entityType: varchar("entity_type", { length: 50 }).notNull(), // vehicle, inquiry, financing_application, user
+  entityId: varchar("entity_id"),
+  details: jsonb("details").$type<Record<string, unknown>>(), // Additional context
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertDealershipSchema = createInsertSchema(dealerships).omit({
   id: true,
   createdAt: true,
@@ -123,3 +137,10 @@ export type InsertInquiry = z.infer<typeof insertInquirySchema>;
 export type Inquiry = typeof inquiries.$inferSelect;
 export type InsertFinancingApplication = z.infer<typeof insertFinancingApplicationSchema>;
 export type FinancingApplication = typeof financingApplications.$inferSelect;
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;

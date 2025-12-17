@@ -20,6 +20,7 @@ import type { Vehicle, Dealership } from "@shared/schema";
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
@@ -84,7 +85,12 @@ export default function Admin() {
       if (!response.ok) {
         return { isAuthenticated: false };
       }
-      return response.json();
+      const data = await response.json();
+      // Store CSRF token from auth check response
+      if (data.csrfToken) {
+        setCsrfToken(data.csrfToken);
+      }
+      return data;
     },
     refetchInterval: false,
     refetchOnWindowFocus: false,
@@ -129,6 +135,10 @@ export default function Admin() {
     onSuccess: async (data) => {
       console.log("Login success:", data);
       setIsAuthenticated(true);
+      // Store CSRF token from login response
+      if (data.csrfToken) {
+        setCsrfToken(data.csrfToken);
+      }
       toast({ title: "Success", description: "Logged in successfully" });
       await refetchAuth();
       queryClient.invalidateQueries({ queryKey: ["/api/vehicles", selectedDealershipId] });
@@ -155,10 +165,31 @@ export default function Admin() {
     },
   });
 
+  // Helper function for admin requests with CSRF token
+  const adminRequest = async (method: string, url: string, body?: unknown) => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+    const response = await fetch(url, {
+      method,
+      headers,
+      credentials: 'include',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Request failed');
+    }
+    return response.json();
+  };
+
   // Delete vehicle mutation
   const deleteVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("DELETE", `/api/vehicles/${id}`);
+      return adminRequest("DELETE", `/api/vehicles/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Vehicle deleted successfully" });
@@ -172,7 +203,7 @@ export default function Admin() {
   // Quick inline update mutation
   const inlineUpdateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Vehicle> }) => {
-      return apiRequest("PUT", `/api/vehicles/${id}`, updates);
+      return adminRequest("PUT", `/api/vehicles/${id}`, updates);
     },
     onSuccess: (_, variables) => {
       const fieldName = Object.keys(variables.updates)[0];
@@ -214,7 +245,7 @@ export default function Admin() {
   const bulkUpdateMutation = useMutation({
     mutationFn: async ({ ids, updates }: { ids: string[]; updates: Partial<Vehicle> }) => {
       const results = await Promise.all(
-        ids.map(id => apiRequest("PUT", `/api/vehicles/${id}`, updates))
+        ids.map(id => adminRequest("PUT", `/api/vehicles/${id}`, updates))
       );
       return results;
     },
@@ -233,7 +264,7 @@ export default function Admin() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       const results = await Promise.all(
-        ids.map(id => apiRequest("DELETE", `/api/vehicles/${id}`))
+        ids.map(id => adminRequest("DELETE", `/api/vehicles/${id}`))
       );
       return results;
     },
@@ -979,6 +1010,7 @@ export default function Admin() {
           </DialogHeader>
           <AdminVehicleForm 
             dealershipId={selectedDealershipId}
+            csrfToken={csrfToken}
             onSuccess={() => setShowAddModal(false)}
             onCancel={() => setShowAddModal(false)}
           />
@@ -994,6 +1026,7 @@ export default function Admin() {
           <AdminVehicleForm 
             vehicle={editingVehicle}
             dealershipId={selectedDealershipId}
+            csrfToken={csrfToken}
             onSuccess={() => setEditingVehicle(null)}
             onCancel={() => setEditingVehicle(null)}
           />
