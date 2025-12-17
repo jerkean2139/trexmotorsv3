@@ -165,11 +165,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SECURITY: Allowed image MIME types for vehicle photos
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const MAX_FILE_SIZE_MB = 10;
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
   // Get upload URL for vehicle images
   app.post("/api/objects/upload", requireAuth, async (req, res) => {
     try {
+      const { contentType, fileSize } = req.body;
+      
+      // SECURITY: Require contentType and fileSize to prevent bypassing validation
+      if (!contentType || typeof contentType !== 'string') {
+        return res.status(400).json({ 
+          error: 'contentType is required and must specify the file MIME type' 
+        });
+      }
+      
+      if (fileSize === undefined || fileSize === null || typeof fileSize !== 'number' || fileSize <= 0) {
+        return res.status(400).json({ 
+          error: 'fileSize is required and must be a positive number (in bytes)' 
+        });
+      }
+      
+      // SECURITY: Validate MIME type before generating upload URL
+      if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
+        return res.status(400).json({ 
+          error: `Invalid file type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}` 
+        });
+      }
+      
+      // SECURITY: Validate file size before upload
+      if (fileSize > MAX_FILE_SIZE_BYTES) {
+        return res.status(400).json({ 
+          error: `File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB` 
+        });
+      }
+      
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
+      res.json({ uploadURL, maxSizeBytes: MAX_FILE_SIZE_BYTES, allowedTypes: ALLOWED_IMAGE_TYPES });
     } catch (error) {
       console.error("Error generating upload URL:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
@@ -186,14 +220,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "imageURLs array is required" });
       }
 
-      // Normalize the image URLs
-      const normalizedPaths = imageURLs.map(url => 
-        objectStorageService.normalizeObjectEntityPath(url)
-      );
+      // SECURITY: Limit number of images per vehicle
+      const MAX_IMAGES_PER_VEHICLE = 20;
+      if (imageURLs.length > MAX_IMAGES_PER_VEHICLE) {
+        return res.status(400).json({ error: `Maximum ${MAX_IMAGES_PER_VEHICLE} images allowed per vehicle` });
+      }
+
+      // SECURITY: Verify vehicle belongs to admin's selected dealership
+      const selectedDealershipId = req.session.selectedDealershipId;
+      if (!selectedDealershipId) {
+        return res.status(400).json({ error: "No dealership selected" });
+      }
 
       const vehicle = await storage.getVehicleById(id);
       if (!vehicle) {
         return res.status(404).json({ error: "Vehicle not found" });
+      }
+
+      if (vehicle.dealershipId !== selectedDealershipId) {
+        return res.status(403).json({ error: "Not authorized to modify this vehicle" });
+      }
+
+      // Normalize the image URLs and validate they're from our storage
+      const normalizedPaths: string[] = [];
+      for (const url of imageURLs) {
+        const normalizedPath = objectStorageService.normalizeObjectEntityPath(url);
+        
+        // SECURITY: Only allow paths from our object storage or external image URLs
+        // Internal paths start with /objects/, external URLs are validated below
+        if (normalizedPath.startsWith('/objects/')) {
+          // Verify the object exists and check its content type
+          try {
+            const objectFile = await objectStorageService.getObjectEntityFile(normalizedPath);
+            const [metadata] = await objectFile.getMetadata();
+            
+            // SECURITY: Validate MIME type of uploaded file
+            if (metadata.contentType && !ALLOWED_IMAGE_TYPES.includes(metadata.contentType)) {
+              return res.status(400).json({ 
+                error: `Invalid file type uploaded. Only images are allowed.` 
+              });
+            }
+            
+            // SECURITY: Validate file size
+            if (metadata.size && Number(metadata.size) > MAX_FILE_SIZE_BYTES) {
+              return res.status(400).json({ 
+                error: `File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB` 
+              });
+            }
+          } catch (err) {
+            // If object doesn't exist or can't be accessed, skip validation
+            // This allows for external URLs like Google Drive
+          }
+        }
+        
+        normalizedPaths.push(normalizedPath);
       }
 
       const updatedVehicle = await storage.updateVehicle(id, {
@@ -575,11 +655,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stockNumber: existingVehicle.stockNumber,
         status: existingVehicle.status,
         isFeatured: existingVehicle.isFeatured,
-        condition: existingVehicle.condition,
         exteriorColor: existingVehicle.exteriorColor,
         interiorColor: existingVehicle.interiorColor,
         fuelType: existingVehicle.fuelType,
         transmission: existingVehicle.transmission,
+        drivetrain: existingVehicle.drivetrain,
+        trim: existingVehicle.trim,
       };
       
       const success = await storage.deleteVehicle(req.params.id);

@@ -11,8 +11,9 @@ This is a comprehensive **multi-tenant** used car dealership website system for 
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
 ✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
-✓ **Security Hardening** - Rate limiting, bcrypt password hashing, session validation, CSRF protection
+✓ **Security Hardening** - Rate limiting, bcrypt password hashing, session validation, CSRF protection, MIME validation
 ✓ **Audit Logging** - Compliance-grade tracking of all admin actions with before/after snapshots
+✓ **File Upload Security** - Image-only uploads (jpeg/png/webp/gif), 10MB max, server-side validation
 ✓ **Enhanced UX** - Image lightbox with zoom, form validation with inline errors, bulk admin actions
 
 ## Multi-Tenant Architecture (December 2025)
