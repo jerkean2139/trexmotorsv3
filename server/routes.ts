@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { logger } from "./logger";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import rateLimit from "express-rate-limit";
@@ -157,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
-      console.error("Error accessing object:", error);
+      logger.error("Error accessing object", { error, path: req.path });
       if (error instanceof ObjectNotFoundError) {
         return res.sendStatus(404);
       }
@@ -205,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       res.json({ uploadURL, maxSizeBytes: MAX_FILE_SIZE_BYTES, allowedTypes: ALLOWED_IMAGE_TYPES });
     } catch (error) {
-      console.error("Error generating upload URL:", error);
+      logger.error("Error generating upload URL", { error, path: '/api/objects/upload' });
       res.status(500).json({ error: "Failed to generate upload URL" });
     }
   });
@@ -282,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(updatedVehicle);
     } catch (error) {
-      console.error("Error updating vehicle images:", error);
+      logger.error("Error updating vehicle images", { error, path: '/api/vehicles/:id/images' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -327,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(401).json({ error: 'Invalid credentials' });
     } catch (error) {
-      console.error("Login error:", error);
+      logger.error("Login error", { error, path: '/api/auth/login' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -360,7 +361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dealerships = await storage.getDealerships();
       res.json(dealerships);
     } catch (error) {
-      console.error("Error fetching dealerships:", error);
+      logger.error("Error fetching dealerships", { error, path: '/api/dealerships' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -373,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(dealership);
     } catch (error) {
-      console.error("Error fetching dealership:", error);
+      logger.error("Error fetching dealership", { error, path: '/api/dealerships/:id' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -386,7 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(dealership);
     } catch (error) {
-      console.error("Error fetching dealership:", error);
+      logger.error("Error fetching dealership", { error, path: '/api/dealerships/slug/:slug' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -397,7 +398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dealership = await storage.createDealership(dealershipData);
       res.status(201).json(dealership);
     } catch (error) {
-      console.error("Error creating dealership:", error);
+      logger.error("Error creating dealership", { error, path: '/api/dealerships' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -414,7 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(dealership);
     } catch (error) {
-      console.error("Error updating dealership:", error);
+      logger.error("Error updating dealership", { error, path: '/api/dealerships/:id' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -438,7 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.selectedDealershipId = dealershipId;
       res.json({ success: true, selectedDealershipId: dealershipId });
     } catch (error) {
-      console.error("Error selecting dealership:", error);
+      logger.error("Error selecting dealership", { error, path: '/api/admin/select-dealership' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -496,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hasMore: parseInt(offset as string) + vehicles.length < totalCount
       });
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      logger.error("Error fetching vehicles", { error, path: '/api/vehicles' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -515,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vehicles = await storage.getFeaturedVehicles(resolvedDealershipId, 6);
       res.json(vehicles);
     } catch (error) {
-      console.error("Error fetching featured vehicles:", error);
+      logger.error("Error fetching featured vehicles", { error, path: '/api/vehicles/featured' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -528,7 +529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(vehicle);
     } catch (error) {
-      console.error("Error fetching vehicle:", error);
+      logger.error("Error fetching vehicle", { error, path: '/api/vehicles/:id' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -562,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(vehicle);
     } catch (error) {
-      console.error("Error creating vehicle:", error);
+      logger.error("Error creating vehicle", { error, path: '/api/vehicles' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -619,7 +620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(vehicle);
     } catch (error) {
-      console.error("Error updating vehicle:", error);
+      logger.error("Error updating vehicle", { error, path: '/api/vehicles/:id' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -679,7 +680,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting vehicle:", error);
+      logger.error("Error deleting vehicle", { error, path: '/api/vehicles/:id' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -698,7 +699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const logs = await storage.getAuditLogs(dealershipId, limit);
       res.json(logs);
     } catch (error) {
-      console.error("Error fetching audit logs:", error);
+      logger.error("Error fetching audit logs", { error, path: '/api/admin/audit-logs' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -724,7 +725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       res.status(201).json(inquiry);
     } catch (error) {
-      console.error("Error creating inquiry:", error);
+      logger.error("Error creating inquiry", { error, path: '/api/inquiries' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -738,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const inquiries = await storage.getInquiries(dealershipId);
       res.json(inquiries);
     } catch (error) {
-      console.error("Error fetching inquiries:", error);
+      logger.error("Error fetching inquiries", { error, path: '/api/inquiries' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -764,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       res.status(201).json(application);
     } catch (error) {
-      console.error("Error creating financing application:", error);
+      logger.error("Error creating financing application", { error, path: '/api/financing-applications' });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
@@ -778,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const applications = await storage.getFinancingApplications(dealershipId);
       res.json(applications);
     } catch (error) {
-      console.error("Error fetching financing applications:", error);
+      logger.error("Error fetching financing applications", { error, path: '/api/financing-applications' });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -839,7 +840,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.set("Content-Type", "application/xml");
       res.send(sitemap);
     } catch (error) {
-      console.error("Error generating sitemap:", error);
+      logger.error("Error generating sitemap", { error, path: '/sitemap.xml' });
       res.status(500).send("Error generating sitemap");
     }
   });
