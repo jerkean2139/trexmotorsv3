@@ -1,87 +1,106 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
+import { SEOHead, BreadcrumbSchema } from "@/components/SEOHead";
 
-interface FinancingFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  employmentStatus: string;
-  monthlyIncome: string;
-  creditScore: string;
-  downPayment: string;
-  vehicleInterest: string;
-  additionalInfo: string;
-}
+const phoneRegex = /^[\d\s\-\(\)]+$/;
+
+const financingFormSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits").regex(phoneRegex, "Please enter a valid phone number"),
+  address: z.string().min(5, "Please enter a valid street address"),
+  city: z.string().min(2, "Please enter a valid city"),
+  state: z.string().min(2, "Please enter a valid state"),
+  zipCode: z.string().min(5, "ZIP code must be at least 5 characters").max(10, "ZIP code is too long"),
+  employmentStatus: z.string().min(1, "Please select your employment status"),
+  monthlyIncome: z.string().min(1, "Please select your income range"),
+  creditScore: z.string().optional(),
+  downPayment: z.string().optional(),
+  vehicleInterest: z.string().optional(),
+  additionalInfo: z.string().optional(),
+});
+
+type FinancingFormData = z.infer<typeof financingFormSchema>;
+
+const formatPhone = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length >= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  } else if (digits.length >= 3) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  }
+  return digits;
+};
 
 function FinancingPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<FinancingFormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    employmentStatus: "",
-    monthlyIncome: "",
-    creditScore: "",
-    downPayment: "",
-    vehicleInterest: "",
-    additionalInfo: "",
+  
+  const form = useForm<FinancingFormData>({
+    resolver: zodResolver(financingFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      employmentStatus: "",
+      monthlyIncome: "",
+      creditScore: "",
+      downPayment: "",
+      vehicleInterest: "",
+      additionalInfo: "",
+    },
   });
 
-  const handleInputChange = (field: keyof FinancingFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: FinancingFormData) => {
     try {
       const response = await fetch('/api/financing-applications', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
       }
       
-      // Redirect to thank you page on success
       setLocation('/thank-you');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting financing application:', error);
       toast({
         title: "Submission Failed", 
-        description: "There was an error submitting your application. Please try again.",
+        description: error.message || "There was an error submitting your application. Please try again.",
         variant: "destructive",
       });
-      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      <SEOHead
+        title="Auto Financing | Get Pre-Approved Today | T-Rex Motors Richmond"
+        description="Apply for auto financing at T-Rex Motors in Richmond, VA. Easy pre-approval process, competitive rates, and flexible terms for all credit types. Get started today!"
+        canonical="https://trexmotors.com/financing"
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: "https://trexmotors.com/" },
+        { name: "Financing", url: "https://trexmotors.com/financing" }
+      ]} />
+      
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[250px]">
@@ -99,7 +118,6 @@ function FinancingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="bg-trex-green text-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-bold mb-4">Get Pre-Approved for Financing</h1>
@@ -123,211 +141,294 @@ function FinancingPage() {
         </div>
       </section>
 
-      {/* Financing Form */}
       <section className="py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Financing Application</h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name *</Label>
-                    <Input
-                      id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
-                    <Input
-                      id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Address</h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="address">Street Address *</Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="city">City *</Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State *</Label>
-                      <Input
-                        id="state"
-                        value={formData.state}
-                        onChange={(e) => handleInputChange('state', e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="zipCode">ZIP Code *</Label>
-                      <Input
-                        id="zipCode"
-                        value={formData.zipCode}
-                        onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Financial Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="employmentStatus">Employment Status *</Label>
-                    <Select value={formData.employmentStatus} onValueChange={(value) => handleInputChange('employmentStatus', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select employment status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="employed">Employed Full-Time</SelectItem>
-                        <SelectItem value="part-time">Employed Part-Time</SelectItem>
-                        <SelectItem value="self-employed">Self-Employed</SelectItem>
-                        <SelectItem value="retired">Retired</SelectItem>
-                        <SelectItem value="student">Student</SelectItem>
-                        <SelectItem value="unemployed">Unemployed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="monthlyIncome">Monthly Income *</Label>
-                    <Select value={formData.monthlyIncome} onValueChange={(value) => handleInputChange('monthlyIncome', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select income range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="under-2000">Under $2,000</SelectItem>
-                        <SelectItem value="2000-4000">$2,000 - $4,000</SelectItem>
-                        <SelectItem value="4000-6000">$4,000 - $6,000</SelectItem>
-                        <SelectItem value="6000-8000">$6,000 - $8,000</SelectItem>
-                        <SelectItem value="over-8000">Over $8,000</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="creditScore">Credit Score Range</Label>
-                    <Select value={formData.creditScore} onValueChange={(value) => handleInputChange('creditScore', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select credit range (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excellent">Excellent (750+)</SelectItem>
-                        <SelectItem value="good">Good (700-749)</SelectItem>
-                        <SelectItem value="fair">Fair (650-699)</SelectItem>
-                        <SelectItem value="poor">Poor (600-649)</SelectItem>
-                        <SelectItem value="bad">Bad (below 600)</SelectItem>
-                        <SelectItem value="unknown">I don't know</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="downPayment">Down Payment Amount</Label>
-                    <Select value={formData.downPayment} onValueChange={(value) => handleInputChange('downPayment', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select down payment" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">$0 (No down payment)</SelectItem>
-                        <SelectItem value="1000">$1,000</SelectItem>
-                        <SelectItem value="2500">$2,500</SelectItem>
-                        <SelectItem value="5000">$5,000</SelectItem>
-                        <SelectItem value="10000">$10,000</SelectItem>
-                        <SelectItem value="15000">$15,000+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vehicle Interest */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Information</h3>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div>
-                  <Label htmlFor="vehicleInterest">Specific Vehicle of Interest</Label>
-                  <Input
-                    id="vehicleInterest"
-                    placeholder="e.g. 2018 Honda Civic, Any SUV under $25K"
-                    value={formData.vehicleInterest}
-                    onChange={(e) => handleInputChange('vehicleInterest', e.target.value)}
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} data-testid="input-firstName" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} data-testid="input-lastName" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email *</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} data-testid="input-email" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="tel" 
+                              {...field}
+                              onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                              data-testid="input-phone"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Address</h3>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Street Address *</FormLabel>
+                          <FormControl>
+                            <Input {...field} data-testid="input-address" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>City *</FormLabel>
+                            <FormControl>
+                              <Input {...field} data-testid="input-city" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="state"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>State *</FormLabel>
+                            <FormControl>
+                              <Input {...field} data-testid="input-state" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="zipCode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>ZIP Code *</FormLabel>
+                            <FormControl>
+                              <Input {...field} data-testid="input-zipCode" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="employmentStatus"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Employment Status *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-employmentStatus">
+                                <SelectValue placeholder="Select employment status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="employed">Employed Full-Time</SelectItem>
+                              <SelectItem value="part-time">Employed Part-Time</SelectItem>
+                              <SelectItem value="self-employed">Self-Employed</SelectItem>
+                              <SelectItem value="retired">Retired</SelectItem>
+                              <SelectItem value="student">Student</SelectItem>
+                              <SelectItem value="unemployed">Unemployed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="monthlyIncome"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Monthly Income *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-monthlyIncome">
+                                <SelectValue placeholder="Select income range" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="under-2000">Under $2,000</SelectItem>
+                              <SelectItem value="2000-4000">$2,000 - $4,000</SelectItem>
+                              <SelectItem value="4000-6000">$4,000 - $6,000</SelectItem>
+                              <SelectItem value="6000-8000">$6,000 - $8,000</SelectItem>
+                              <SelectItem value="over-8000">Over $8,000</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="creditScore"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Credit Score Range</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-creditScore">
+                                <SelectValue placeholder="Select credit range (optional)" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="excellent">Excellent (750+)</SelectItem>
+                              <SelectItem value="good">Good (700-749)</SelectItem>
+                              <SelectItem value="fair">Fair (650-699)</SelectItem>
+                              <SelectItem value="poor">Poor (600-649)</SelectItem>
+                              <SelectItem value="bad">Bad (below 600)</SelectItem>
+                              <SelectItem value="unknown">I don't know</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="downPayment"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Down Payment Amount</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-downPayment">
+                                <SelectValue placeholder="Select down payment" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="0">$0 (No down payment)</SelectItem>
+                              <SelectItem value="1000">$1,000</SelectItem>
+                              <SelectItem value="2500">$2,500</SelectItem>
+                              <SelectItem value="5000">$5,000</SelectItem>
+                              <SelectItem value="10000">$10,000</SelectItem>
+                              <SelectItem value="15000">$15,000+</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Information</h3>
+                  <FormField
+                    control={form.control}
+                    name="vehicleInterest"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specific Vehicle of Interest</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g. 2018 Honda Civic, Any SUV under $25K"
+                            {...field}
+                            data-testid="input-vehicleInterest"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-              </div>
 
-              {/* Additional Information */}
-              <div>
-                <Label htmlFor="additionalInfo">Additional Information</Label>
-                <Textarea
-                  id="additionalInfo"
-                  placeholder="Any additional information you'd like us to know about your financing needs..."
-                  rows={4}
-                  value={formData.additionalInfo}
-                  onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+                <FormField
+                  control={form.control}
+                  name="additionalInfo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Information</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Any additional information you'd like us to know about your financing needs..."
+                          rows={4}
+                          {...field}
+                          data-testid="input-additionalInfo"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-center pt-6">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="bg-trex-green hover:bg-trex-green text-white px-12 py-3 text-lg font-semibold"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Application"}
-                </Button>
-              </div>
-            </form>
+                <div className="flex justify-center pt-6">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="bg-trex-green hover:bg-trex-green/90 text-white px-12 py-3 text-lg font-semibold"
+                    disabled={form.formState.isSubmitting}
+                    data-testid="button-submit"
+                  >
+                    {form.formState.isSubmitting ? "Submitting..." : "Submit Application"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
 
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 text-center">

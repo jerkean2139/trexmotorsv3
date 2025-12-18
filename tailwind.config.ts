@@ -13,6 +13,11 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "trex-green": {
+          DEFAULT: "#72E118",
+          dark: "#5CBF12",
+          light: "#8EF442",
+        },
         card: {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",

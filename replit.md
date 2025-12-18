@@ -1,15 +1,27 @@
 # Overview
 
-This is a comprehensive used car dealership website for T-Rex Motors in Richmond. The application provides a customer-facing vehicle inventory browsing system with advanced search and filter capabilities, vehicle detail modals with inquiry forms, and a complete admin dashboard for vehicle management. The system is built as a full-stack web application using modern React and Node.js technologies with a PostgreSQL database.
+This is a comprehensive **multi-tenant** used car dealership website system for T-Rex Motors. The application provides customer-facing vehicle inventory browsing with advanced search and filter capabilities, vehicle detail modals with inquiry forms, and a unified admin dashboard for managing multiple dealership locations. The system is built as a full-stack web application using modern React and Node.js technologies with a PostgreSQL database.
 
-## Current Status (November 2025)
+## Current Status (December 2025)
+✓ **Multi-Tenant Architecture** - Single database with dealership isolation for Richmond & Norfolk locations
 ✓ **Full Application Completed** - Professional dealership website with complete functionality
-✓ **Vehicle Inventory System** - 21+ vehicles with comprehensive data
+✓ **Vehicle Inventory System** - Dealership-scoped vehicles with comprehensive data
 ✓ **Search & Filter System** - Advanced filtering by make, year range, price range with real-time results
-✓ **Admin Dashboard** - Complete vehicle management with authentication (admin/trex2025!)
+✓ **Admin Dashboard** - Complete vehicle management with dealership switcher, bulk actions, and authentication (admin/trex2025!)
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
-✓ **Database Integration** - Full PostgreSQL setup with proper schema and sample data
+✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
+✓ **Security Hardening** - Rate limiting, bcrypt password hashing, session validation
+✓ **Enhanced UX** - Image lightbox with zoom, form validation with inline errors, bulk admin actions
+
+## Multi-Tenant Architecture (December 2025)
+- **Dealerships Table**: Central registry of all dealership locations with unique slugs
+- **Current Locations**: 
+  - T-Rex Motors Richmond (trex-richmond) - 25 vehicles
+  - T-Rex Motors Norfolk (trex-norfolk) - ready for inventory
+- **Tenant Isolation**: All vehicles, inquiries, and financing applications are scoped to specific dealerships
+- **Admin Session**: selectedDealershipId tracks which dealership admin is managing
+- **Security Enforcement**: Server-side validation prevents cross-tenant data access
 
 ## Deployment Platform: Railway
 - **Configuration**: `railway.toml` in project root
@@ -38,11 +50,14 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Session-based authentication for admin users
 - **File Uploads**: Uppy.js integration with object storage for vehicle images
 
-## Database Design
-- **Primary Entities**: Users, Vehicles, and Inquiries
-- **Vehicle Schema**: Comprehensive fields including make, model, year, price, mileage, colors, engine specs, features array, and image storage
-- **Relationships**: Inquiries reference specific vehicles for customer interest tracking
-- **Features**: Support for featured vehicles, status tracking, and rich metadata
+## Database Design (Multi-Tenant)
+- **Dealerships Table**: Central tenant registry with id, name, slug, contact info, branding (logo, primaryColor)
+- **Users Table**: Admin authentication with bcrypt-hashed passwords
+- **Vehicles Table**: Full inventory with dealershipId foreign key for tenant isolation
+- **Inquiries Table**: Customer inquiries linked to vehicles and dealerships
+- **Financing Applications Table**: Loan applications scoped to dealerships
+- **Relationships**: All entities reference dealershipId for data isolation
+- **Security**: Server-side enforcement prevents cross-tenant data access
 
 ## Project Structure
 - `/client` - React frontend application with components, pages, and utilities
@@ -72,8 +87,14 @@ Preferred communication style: Simple, everyday language.
 - **Uppy.js**: File upload interface with AWS S3 integration for direct uploads
 
 ## Authentication & Security
-- **bcrypt**: Password hashing for admin authentication
+- **bcrypt**: Password hashing for admin authentication with database-stored hashed passwords
 - **express-session**: Session management for maintaining admin login state
+- **express-rate-limit**: Rate limiting protection:
+  - Auth endpoints: 5 attempts per 15 minutes
+  - Form submissions: 10 per hour per IP
+  - General API: 100 requests per minute
+- **Trust Proxy**: Configured for Railway/reverse proxy deployment
+- **Session Secret Validation**: Required SESSION_SECRET in production environment
 
 ## Development Tools
 - **Replit Integration**: Development environment optimization with cartographer and error modal plugins
@@ -90,3 +111,42 @@ Preferred communication style: Simple, everyday language.
 ## Admin Credentials
 - Username: `admin`
 - Password: `trex2025!` (or custom password set in database)
+
+# SEO/AEO/GEO Implementation (December 2025)
+
+## Technical SEO Features
+- **Dynamic Sitemap**: Auto-generated at `/sitemap.xml` with all pages and vehicles
+- **Robots.txt**: Served at `/robots.txt` with proper crawl directives
+- **Canonical URLs**: Set on all pages via SEOHead component
+- **Meta Tags**: Unique title, description for each page
+- **Open Graph**: Full OG tags for social sharing (og:title, og:description, og:image, og:url)
+- **Twitter Cards**: summary_large_image format for Twitter sharing
+
+## Structured Data (JSON-LD)
+- **AutoDealer Schema**: Full local business data with NAP, hours, geo coordinates
+- **WebSite Schema**: With SearchAction for Google sitelinks search box
+- **BreadcrumbList**: Navigation breadcrumbs on all pages
+- **Vehicle Schema**: Product structured data for individual vehicles
+
+## Local SEO (GEO)
+- **Geo Tags**: geo.region, geo.placename, geo.position, ICBM coordinates
+- **LocalBusiness Schema**: Address, phone, hours, service area (50mi radius)
+- **NAP Consistency**: Name, Address, Phone consistent across site and schema
+
+## Performance Optimizations
+- **Preconnect**: fonts.googleapis.com, fonts.gstatic.com, storage.googleapis.com
+- **DNS Prefetch**: images.unsplash.com for hero images
+- **Font Loading**: display=swap for non-blocking font loading
+- **Web Vitals Monitoring**: RUM endpoint at `/api/rum` for Core Web Vitals tracking
+
+## Brand Colors
+- **Primary Green**: #72E118 (HSL: 93, 81%, 49%)
+- **Dark Green**: #5CBF12 (for hover states)
+- **Light Green**: #8EF442 (for accents)
+
+## SEO Components
+- `SEOHead`: Dynamic meta tag management per page
+- `LocalBusinessSchema`: JSON-LD for local business
+- `BreadcrumbSchema`: JSON-LD for breadcrumb navigation
+- `VehicleSchema`: JSON-LD for vehicle product pages
+- `WebVitalsMonitor`: Real User Monitoring for Core Web Vitals

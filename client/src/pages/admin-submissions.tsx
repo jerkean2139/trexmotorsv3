@@ -44,15 +44,29 @@ function AdminSubmissions() {
   const [financingApps, setFinancingApps] = useState<FinancingApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedDealershipId, setSelectedDealershipId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('adminSelectedDealership') || "";
+    }
+    return "";
+  });
 
-  // Check authentication
+  // Check authentication - use same endpoint as main admin page
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/admin/check');
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
         if (response.ok) {
-          setIsAuthenticated(true);
-          fetchData();
+          const data = await response.json();
+          if (data.isAuthenticated) {
+            setIsAuthenticated(true);
+            fetchData();
+          } else {
+            setLocation('/admin');
+          }
         } else {
           setLocation('/admin');
         }
@@ -69,10 +83,16 @@ function AdminSubmissions() {
     try {
       setIsLoading(true);
       
+      // Build query params with dealership filter
+      const params = new URLSearchParams();
+      if (selectedDealershipId) {
+        params.set('dealershipId', selectedDealershipId);
+      }
+      
       // Fetch inquiries and financing applications simultaneously
       const [inquiriesResponse, financingResponse] = await Promise.all([
-        fetch('/api/inquiries'),
-        fetch('/api/financing-applications')
+        fetch(`/api/inquiries?${params.toString()}`, { credentials: 'include' }),
+        fetch(`/api/financing-applications?${params.toString()}`, { credentials: 'include' })
       ]);
 
       if (inquiriesResponse.ok) {
@@ -145,8 +165,24 @@ function AdminSubmissions() {
                 onClick={() => window.location.reload()}
                 className="bg-trex-green hover:bg-trex-green/90"
               >
-                <i className="fas fa-refresh mr-2"></i>
                 Refresh
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/auth/logout', { 
+                      method: 'POST',
+                      credentials: 'include'
+                    });
+                    setLocation('/admin');
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }}
+                data-testid="button-logout"
+              >
+                Log Out
               </Button>
             </div>
           </div>

@@ -1,0 +1,29 @@
+# T-Rex Motors - Richmond's Premier Used Car Dealership
+# https://trexmotors.com
+
+User-agent: *
+Allow: /
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Disallow admin areas
+Disallow: /admin
+Disallow: /api/
+
+# Allow specific API endpoints for structured data
+Allow: /api/vehicles$
+Allow: /api/vehicles/featured$
+
+# Sitemap location
+Sitemap: https://trexmotors.com/sitemap.xml
+
+# Google-specific directives
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing-specific directives
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
