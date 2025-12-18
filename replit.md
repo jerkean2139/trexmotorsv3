@@ -4,10 +4,13 @@ This is a comprehensive **multi-tenant** used car dealership website system for 
 
 ## Current Status (December 2025)
 ✓ **Multi-Tenant Architecture** - Single database with dealership isolation for Richmond & Norfolk locations
+✓ **Custom Domain Support** - Each dealership can have its own domain with automatic branding
 ✓ **Full Application Completed** - Professional dealership website with complete functionality
 ✓ **Vehicle Inventory System** - Dealership-scoped vehicles with comprehensive data
 ✓ **Search & Filter System** - Advanced filtering by make, year range, price range with real-time results
 ✓ **Admin Dashboard** - Complete vehicle management with dealership switcher, bulk actions, and authentication (admin/trex2025!)
+✓ **Dealership Management** - Create/edit dealerships with custom domains, branding, and contact info from admin
+✓ **Dynamic Theming** - Per-dealership colors, logos, and branding applied via DealershipContext
 ✓ **Dual Image Management System** - Both local file upload and Google Drive URL integration
 ✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
@@ -19,12 +22,15 @@ This is a comprehensive **multi-tenant** used car dealership website system for 
 ✓ **Enhanced UX** - Image lightbox with zoom, form validation with inline errors, bulk admin actions
 
 ## Multi-Tenant Architecture (December 2025)
-- **Dealerships Table**: Central registry of all dealership locations with unique slugs
+- **Dealerships Table**: Central registry with id, name, slug, domain, contact info, full branding (logo, primaryColor, secondaryColor, accentColor, heroImage, tagline, favicon, socialLinks, seoMeta, businessHours)
+- **Custom Domain Routing**: `/api/public/dealership-context` endpoint resolves dealership by host header or slug parameter
+- **Dynamic Theming**: DealershipContext provider applies CSS variables for per-dealership colors
 - **Current Locations**: 
   - T-Rex Motors Richmond (trex-richmond) - 25 vehicles
   - T-Rex Motors Norfolk (trex-norfolk) - ready for inventory
 - **Tenant Isolation**: All vehicles, inquiries, and financing applications are scoped to specific dealerships
 - **Admin Session**: selectedDealershipId tracks which dealership admin is managing
+- **Admin Dealership Manager**: Create new dealerships, edit branding, configure custom domains
 - **Security Enforcement**: Server-side validation prevents cross-tenant data access
 
 ## Deployment Platform: Railway
@@ -55,7 +61,7 @@ Preferred communication style: Simple, everyday language.
 - **File Uploads**: Uppy.js integration with object storage for vehicle images
 
 ## Database Design (Multi-Tenant)
-- **Dealerships Table**: Central tenant registry with id, name, slug, contact info, branding (logo, primaryColor)
+- **Dealerships Table**: Central tenant registry with id, name, slug, domain, contact info, full branding (logo, favicon, primaryColor, secondaryColor, accentColor, heroImage, tagline, socialLinks, seoMeta, businessHours)
 - **Users Table**: Admin authentication with bcrypt-hashed passwords
 - **Vehicles Table**: Full inventory with dealershipId foreign key for tenant isolation
 - **Inquiries Table**: Customer inquiries linked to vehicles and dealerships
