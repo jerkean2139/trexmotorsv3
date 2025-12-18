@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminVehicleForm from "@/components/AdminVehicleForm";
-import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2, CheckSquare, Square } from "lucide-react";
+import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2, CheckSquare, Square, Globe, Paintbrush } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,8 @@ export default function Admin() {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [showDealershipModal, setShowDealershipModal] = useState(false);
+  const [editingDealership, setEditingDealership] = useState<Dealership | null>(null);
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -278,6 +280,39 @@ export default function Admin() {
     },
   });
 
+  // Create dealership mutation
+  const createDealershipMutation = useMutation({
+    mutationFn: async (dealership: Partial<Dealership>) => {
+      return adminRequest("POST", "/api/dealerships", dealership);
+    },
+    onSuccess: (newDealership) => {
+      toast({ title: "Success", description: "Dealership created successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/dealerships"] });
+      setShowDealershipModal(false);
+      setEditingDealership(null);
+      setSelectedDealershipId(newDealership.id);
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message || "Failed to create dealership", variant: "destructive" });
+    },
+  });
+
+  // Update dealership mutation
+  const updateDealershipMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Dealership> }) => {
+      return adminRequest("PUT", `/api/dealerships/${id}`, updates);
+    },
+    onSuccess: () => {
+      toast({ title: "Success", description: "Dealership updated successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/dealerships"] });
+      setShowDealershipModal(false);
+      setEditingDealership(null);
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message || "Failed to update dealership", variant: "destructive" });
+    },
+  });
+
   // Toggle vehicle selection
   const toggleVehicleSelection = (vehicleId: string) => {
     setSelectedVehicleIds(prev => {
@@ -469,6 +504,18 @@ export default function Admin() {
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Vehicle
+              </Button>
+              <Button 
+                onClick={() => {
+                  setEditingDealership(null);
+                  setShowDealershipModal(true);
+                }}
+                variant="outline"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300"
+                data-testid="button-manage-dealerships"
+              >
+                <Building2 className="mr-2 h-4 w-4" />
+                Dealerships
               </Button>
               <Link href="/admin/submissions">
                 <Button 
@@ -1033,7 +1080,391 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
 
+      {/* Dealership Management Modal */}
+      <Dialog open={showDealershipModal} onOpenChange={setShowDealershipModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-[#72E118]" />
+              Manage Dealerships
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Dealership List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">Your Dealerships</h3>
+                <Button 
+                  size="sm"
+                  onClick={() => setEditingDealership({ id: '', name: '', slug: '' } as Dealership)}
+                  className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900"
+                  data-testid="button-add-dealership"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Dealership
+                </Button>
+              </div>
+              
+              <div className="grid gap-3">
+                {dealerships.map((dealership) => (
+                  <Card key={dealership.id} className="border border-gray-200 hover:border-[#72E118] transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div 
+                            className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                            style={{ backgroundColor: dealership.primaryColor || '#72E118' }}
+                          >
+                            {dealership.name.charAt(0)}
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{dealership.name}</h4>
+                            <div className="flex items-center gap-3 text-sm text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Globe className="h-3.5 w-3.5" />
+                                {dealership.domain || `/${dealership.slug}`}
+                              </span>
+                              {dealership.city && dealership.state && (
+                                <span>{dealership.city}, {dealership.state}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingDealership(dealership)}
+                            data-testid={`button-edit-dealership-${dealership.id}`}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={selectedDealershipId === dealership.id ? "default" : "outline"}
+                            onClick={() => setSelectedDealershipId(dealership.id)}
+                            className={selectedDealershipId === dealership.id ? "bg-[#72E118] hover:bg-[#5CBF12] text-gray-900" : ""}
+                          >
+                            {selectedDealershipId === dealership.id ? "Active" : "Switch"}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            
+            {/* Dealership Edit Form */}
+            {editingDealership && (
+              <Card className="border-2 border-[#72E118]">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Paintbrush className="h-5 w-5 text-[#72E118]" />
+                    {editingDealership.id ? 'Edit Dealership' : 'New Dealership'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DealershipForm
+                    dealership={editingDealership.id ? editingDealership : undefined}
+                    onSubmit={(data) => {
+                      if (editingDealership.id) {
+                        updateDealershipMutation.mutate({ id: editingDealership.id, updates: data });
+                      } else {
+                        createDealershipMutation.mutate(data);
+                      }
+                    }}
+                    onCancel={() => setEditingDealership(null)}
+                    isSubmitting={createDealershipMutation.isPending || updateDealershipMutation.isPending}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
+  );
+}
+
+// Dealership Form Component
+function DealershipForm({ 
+  dealership, 
+  onSubmit, 
+  onCancel, 
+  isSubmitting 
+}: { 
+  dealership?: Dealership; 
+  onSubmit: (data: Partial<Dealership>) => void; 
+  onCancel: () => void;
+  isSubmitting: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    name: dealership?.name || '',
+    slug: dealership?.slug || '',
+    domain: dealership?.domain || '',
+    address: dealership?.address || '',
+    city: dealership?.city || '',
+    state: dealership?.state || '',
+    zipCode: dealership?.zipCode || '',
+    phone: dealership?.phone || '',
+    email: dealership?.email || '',
+    logo: dealership?.logo || '',
+    favicon: dealership?.favicon || '',
+    primaryColor: dealership?.primaryColor || '#72E118',
+    secondaryColor: dealership?.secondaryColor || '#5CBF12',
+    accentColor: dealership?.accentColor || '#8EF442',
+    heroImage: dealership?.heroImage || '',
+    tagline: dealership?.tagline || '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const generateSlug = (name: string) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Info */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Dealership Name *</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => {
+              setFormData({ 
+                ...formData, 
+                name: e.target.value,
+                slug: formData.slug || generateSlug(e.target.value)
+              });
+            }}
+            placeholder="T-Rex Motors Richmond"
+            required
+            data-testid="input-dealership-name"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="slug">URL Slug *</Label>
+          <Input
+            id="slug"
+            value={formData.slug}
+            onChange={(e) => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
+            placeholder="trex-richmond"
+            required
+            data-testid="input-dealership-slug"
+          />
+          <p className="text-xs text-gray-500">Used in URLs: /dealership/{formData.slug || 'your-slug'}</p>
+        </div>
+      </div>
+
+      {/* Custom Domain */}
+      <div className="space-y-2">
+        <Label htmlFor="domain" className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-[#72E118]" />
+          Custom Domain (Optional)
+        </Label>
+        <Input
+          id="domain"
+          value={formData.domain}
+          onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+          placeholder="www.trexmotorsrichmond.com"
+          data-testid="input-dealership-domain"
+        />
+        <p className="text-xs text-gray-500">Point your domain's DNS to our servers, then enter it here</p>
+      </div>
+
+      {/* Contact Info */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="(555) 123-4567"
+            data-testid="input-dealership-phone"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="sales@trexmotors.com"
+            data-testid="input-dealership-email"
+          />
+        </div>
+      </div>
+
+      {/* Address */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="address">Street Address</Label>
+          <Input
+            id="address"
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            placeholder="123 Main Street"
+            data-testid="input-dealership-address"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="city">City</Label>
+            <Input
+              id="city"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              placeholder="Richmond"
+              data-testid="input-dealership-city"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="state">State</Label>
+            <Input
+              id="state"
+              value={formData.state}
+              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              placeholder="VA"
+              data-testid="input-dealership-state"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="zipCode">ZIP Code</Label>
+            <Input
+              id="zipCode"
+              value={formData.zipCode}
+              onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+              placeholder="23220"
+              data-testid="input-dealership-zip"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Branding */}
+      <div className="space-y-4">
+        <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+          <Palette className="h-4 w-4 text-[#72E118]" />
+          Branding
+        </h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="logo">Logo URL</Label>
+            <Input
+              id="logo"
+              value={formData.logo}
+              onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+              placeholder="https://example.com/logo.png"
+              data-testid="input-dealership-logo"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tagline">Tagline</Label>
+            <Input
+              id="tagline"
+              value={formData.tagline}
+              onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+              placeholder="Your Trusted Car Dealer"
+              data-testid="input-dealership-tagline"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="primaryColor">Primary Color</Label>
+            <div className="flex gap-2">
+              <Input
+                type="color"
+                id="primaryColor"
+                value={formData.primaryColor}
+                onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                className="w-12 h-10 p-1 cursor-pointer"
+                data-testid="input-dealership-primary-color"
+              />
+              <Input
+                value={formData.primaryColor}
+                onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
+                placeholder="#72E118"
+                className="flex-1"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="secondaryColor">Secondary Color</Label>
+            <div className="flex gap-2">
+              <Input
+                type="color"
+                id="secondaryColor"
+                value={formData.secondaryColor}
+                onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
+                className="w-12 h-10 p-1 cursor-pointer"
+                data-testid="input-dealership-secondary-color"
+              />
+              <Input
+                value={formData.secondaryColor}
+                onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
+                placeholder="#5CBF12"
+                className="flex-1"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="accentColor">Accent Color</Label>
+            <div className="flex gap-2">
+              <Input
+                type="color"
+                id="accentColor"
+                value={formData.accentColor}
+                onChange={(e) => setFormData({ ...formData, accentColor: e.target.value })}
+                className="w-12 h-10 p-1 cursor-pointer"
+                data-testid="input-dealership-accent-color"
+              />
+              <Input
+                value={formData.accentColor}
+                onChange={(e) => setFormData({ ...formData, accentColor: e.target.value })}
+                placeholder="#8EF442"
+                className="flex-1"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="heroImage">Hero Image URL</Label>
+          <Input
+            id="heroImage"
+            value={formData.heroImage}
+            onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
+            placeholder="https://example.com/hero.jpg"
+            data-testid="input-dealership-hero"
+          />
+        </div>
+      </div>
+
+      {/* Form Actions */}
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          className="bg-[#72E118] hover:bg-[#5CBF12] text-gray-900"
+          disabled={isSubmitting}
+          data-testid="button-submit-dealership"
+        >
+          {isSubmitting ? 'Saving...' : (dealership ? 'Update Dealership' : 'Create Dealership')}
+        </Button>
+      </div>
+    </form>
   );
 }
