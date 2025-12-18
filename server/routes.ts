@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema } from "@shared/schema";
+import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema, type Dealership } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { logger } from "./logger";
 import bcrypt from "bcrypt";
@@ -353,6 +353,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       selectedDealershipId: req.session.selectedDealershipId || null,
       csrfToken: req.session.isAuthenticated ? req.session.csrfToken : undefined
     });
+  });
+
+  // Public dealership context endpoint - resolves dealership based on domain or slug
+  app.get("/api/public/dealership-context", async (req, res) => {
+    try {
+      const host = req.get('host') || '';
+      const slug = req.query.slug as string | undefined;
+      
+      let dealership: Dealership | undefined;
+      
+      // First try to resolve by custom domain
+      if (host && !host.includes('replit') && !host.includes('localhost')) {
+        dealership = await storage.getDealershipByDomain(host);
+      }
+      
+      // Fallback to slug parameter
+      if (!dealership && slug) {
+        dealership = await storage.getDealershipBySlug(slug);
+      }
+      
+      // Default to first active dealership if no specific one found
+      if (!dealership) {
+        const allDealerships = await storage.getDealerships();
+        dealership = allDealerships[0];
+      }
+      
+      if (!dealership) {
+        return res.status(404).json({ error: "No dealership found" });
+      }
+      
+      res.json(dealership);
+    } catch (error) {
+      logger.error("Error resolving dealership context", { error, path: '/api/public/dealership-context' });
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // Dealership routes

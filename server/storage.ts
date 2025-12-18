@@ -20,6 +20,7 @@ export interface IStorage {
   getDealerships(): Promise<Dealership[]>;
   getDealershipById(id: string): Promise<Dealership | undefined>;
   getDealershipBySlug(slug: string): Promise<Dealership | undefined>;
+  getDealershipByDomain(domain: string): Promise<Dealership | undefined>;
   createDealership(dealership: InsertDealership): Promise<Dealership>;
   updateDealership(id: string, dealership: Partial<InsertDealership>): Promise<Dealership | undefined>;
 
@@ -58,6 +59,13 @@ export class DatabaseStorage implements IStorage {
 
   async getDealershipBySlug(slug: string): Promise<Dealership | undefined> {
     const [dealership] = await db.select().from(dealerships).where(eq(dealerships.slug, slug));
+    return dealership || undefined;
+  }
+
+  async getDealershipByDomain(domain: string): Promise<Dealership | undefined> {
+    const [dealership] = await db.select().from(dealerships).where(
+      and(eq(dealerships.domain, domain), eq(dealerships.isActive, true))
+    );
     return dealership || undefined;
   }
 
