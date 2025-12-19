@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminVehicleForm from "@/components/AdminVehicleForm";
-import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2, CheckSquare, Square, Globe, Paintbrush } from "lucide-react";
+import { Car, Plus, Mail, LogOut, Search, Filter, Trash2, Edit, Eye, CheckCircle, Clock, XCircle, LayoutDashboard, Camera, Gauge, Palette, Settings2, Tag, LayoutGrid, TableIcon, Star, DollarSign, Building2, CheckSquare, Square, Globe, Paintbrush, FolderSync, Image, Loader2, RefreshCw } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { useToast } from "@/hooks/use-toast";
@@ -1178,6 +1178,7 @@ export default function Admin() {
                     }}
                     onCancel={() => setEditingDealership(null)}
                     isSubmitting={createDealershipMutation.isPending || updateDealershipMutation.isPending}
+                    csrfToken={csrfToken}
                   />
                 </CardContent>
               </Card>
@@ -1195,13 +1196,16 @@ function DealershipForm({
   dealership, 
   onSubmit, 
   onCancel, 
-  isSubmitting 
+  isSubmitting,
+  csrfToken
 }: { 
   dealership?: Dealership; 
   onSubmit: (data: Partial<Dealership>) => void; 
   onCancel: () => void;
   isSubmitting: boolean;
+  csrfToken: string | null;
 }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: dealership?.name || '',
     slug: dealership?.slug || '',
@@ -1219,7 +1223,71 @@ function DealershipForm({
     accentColor: dealership?.accentColor || '#8EF442',
     heroImage: dealership?.heroImage || '',
     tagline: dealership?.tagline || '',
+    googleDriveFolderId: (dealership as any)?.googleDriveFolderId || '',
   });
+  
+  const [driveFolder, setDriveFolder] = useState('');
+  const [driveFolderValidating, setDriveFolderValidating] = useState(false);
+  const [driveFolderValid, setDriveFolderValid] = useState<{ name: string; id: string } | null>(null);
+  const [driveImages, setDriveImages] = useState<Array<{ id: string; name: string; url: string; thumbnailUrl: string }>>([]);
+  const [loadingDriveImages, setLoadingDriveImages] = useState(false);
+
+  // Load images if folder is already configured
+  useEffect(() => {
+    if (formData.googleDriveFolderId) {
+      loadDriveImages(formData.googleDriveFolderId);
+    }
+  }, []);
+
+  const validateDriveFolder = async () => {
+    if (!driveFolder) return;
+    
+    setDriveFolderValidating(true);
+    try {
+      const response = await fetch('/api/admin/google-drive/validate-folder', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})
+        },
+        credentials: 'include',
+        body: JSON.stringify({ folderUrl: driveFolder })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setDriveFolderValid({ name: data.folderName, id: data.folderId });
+        setFormData({ ...formData, googleDriveFolderId: data.folderId });
+        loadDriveImages(data.folderId);
+        toast({ title: "Folder validated", description: `Found folder: ${data.folderName}` });
+      } else {
+        toast({ title: "Validation failed", description: data.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to validate folder", variant: "destructive" });
+    } finally {
+      setDriveFolderValidating(false);
+    }
+  };
+
+  const loadDriveImages = async (folderId: string) => {
+    setLoadingDriveImages(true);
+    try {
+      const response = await fetch(`/api/admin/google-drive/folder/${folderId}/images`, {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setDriveImages(data.images || []);
+      }
+    } catch (error) {
+      console.error('Failed to load drive images:', error);
+    } finally {
+      setLoadingDriveImages(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1449,6 +1517,94 @@ function DealershipForm({
             data-testid="input-dealership-hero"
           />
         </div>
+      </div>
+
+      {/* Google Drive Integration */}
+      <div className="space-y-4">
+        <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+          <FolderSync className="h-4 w-4 text-[#72E118]" />
+          Google Drive Image Folder
+        </h4>
+        <p className="text-sm text-gray-500">
+          Connect a Google Drive folder to automatically sync vehicle images. 
+          Share your folder with: <code className="bg-gray-100 px-1 rounded">manumation@kobllm.iam.gserviceaccount.com</code>
+        </p>
+        
+        <div className="flex gap-2">
+          <Input
+            value={driveFolder}
+            onChange={(e) => setDriveFolder(e.target.value)}
+            placeholder="Paste Google Drive folder URL or ID"
+            data-testid="input-drive-folder"
+          />
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={validateDriveFolder}
+            disabled={driveFolderValidating || !driveFolder}
+            data-testid="button-validate-folder"
+          >
+            {driveFolderValidating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {driveFolderValid && (
+          <div className="flex items-center gap-2 text-sm text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            Connected to: {driveFolderValid.name}
+          </div>
+        )}
+
+        {formData.googleDriveFolderId && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">
+                Folder ID: <code className="bg-gray-100 px-1 rounded">{formData.googleDriveFolderId}</code>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => loadDriveImages(formData.googleDriveFolderId)}
+                disabled={loadingDriveImages}
+                data-testid="button-refresh-images"
+              >
+                {loadingDriveImages ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                Refresh
+              </Button>
+            </div>
+
+            {driveImages.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">{driveImages.length} images found</p>
+                <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                  {driveImages.slice(0, 8).map((img) => (
+                    <div key={img.id} className="relative aspect-square rounded overflow-hidden border">
+                      <img
+                        src={img.thumbnailUrl}
+                        alt={img.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                  {driveImages.length > 8 && (
+                    <div className="aspect-square rounded border flex items-center justify-center bg-gray-100 text-gray-500 text-sm">
+                      +{driveImages.length - 8} more
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Form Actions */}
