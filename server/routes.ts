@@ -6,9 +6,30 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { logger } from "./logger";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { Pool } from "pg";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import crypto from "crypto";
+
+// PostgreSQL session store setup (only when DATABASE_URL is available)
+const PgSession = connectPgSimple(session);
+const getSessionStore = () => {
+  if (process.env.DATABASE_URL) {
+    const sessionPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    });
+    logger.info('Using PostgreSQL session store');
+    return new PgSession({
+      pool: sessionPool,
+      tableName: 'session',
+      createTableIfMissing: true,
+    });
+  }
+  logger.warn('DATABASE_URL not set, using MemoryStore (not recommended for production)');
+  return undefined; // Falls back to MemoryStore
+};
 
 // CSRF Token utilities
 const generateCsrfToken = (): string => {
@@ -114,8 +135,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
-  // Session middleware with validated secret
+  // Session middleware with PostgreSQL store for production scalability
+  const sessionStore = getSessionStore();
   app.use(session({
+    store: sessionStore,
     secret: getSessionSecret(),
     resave: false,
     saveUninitialized: false,
