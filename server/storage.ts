@@ -1,6 +1,7 @@
 import { vehicles, inquiries, users, financingApplications, dealerships, auditLogs, type User, type InsertUser, type Vehicle, type InsertVehicle, type Inquiry, type InsertInquiry, type FinancingApplication, type InsertFinancingApplication, type Dealership, type InsertDealership, type AuditLog, type InsertAuditLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, or, gte, lte, desc, asc, sql, SQL } from "drizzle-orm";
+import { encryptField, decryptField } from "./encryption";
 
 export interface VehicleFilters {
   make?: string;
@@ -288,25 +289,66 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFinancingApplication(application: InsertFinancingApplication): Promise<FinancingApplication> {
+    const encryptedApplication = { ...application };
+    
+    if (encryptedApplication.monthlyIncome) {
+      const encrypted = encryptField(encryptedApplication.monthlyIncome);
+      if (encrypted) {
+        encryptedApplication.monthlyIncome = encrypted;
+      }
+    }
+    
+    if (encryptedApplication.creditScore) {
+      const encrypted = encryptField(encryptedApplication.creditScore);
+      if (encrypted) {
+        encryptedApplication.creditScore = encrypted;
+      }
+    }
+    
     const [newApplication] = await db
       .insert(financingApplications)
-      .values(application)
+      .values(encryptedApplication)
       .returning();
-    return newApplication;
+    return this.decryptFinancingApplication(newApplication);
+  }
+
+  private decryptFinancingApplication(app: FinancingApplication): FinancingApplication {
+    const decrypted = { ...app };
+    
+    if (decrypted.monthlyIncome) {
+      const plaintext = decryptField(decrypted.monthlyIncome);
+      if (plaintext) {
+        decrypted.monthlyIncome = plaintext;
+      }
+    }
+    
+    if (decrypted.creditScore) {
+      const plaintext = decryptField(decrypted.creditScore);
+      if (plaintext) {
+        decrypted.creditScore = plaintext;
+      }
+    }
+    
+    return decrypted;
   }
 
   async getFinancingApplications(dealershipId: string | null): Promise<FinancingApplication[]> {
+    let applications: FinancingApplication[];
+    
     if (dealershipId) {
-      return await db
+      applications = await db
         .select()
         .from(financingApplications)
         .where(eq(financingApplications.dealershipId, dealershipId))
         .orderBy(desc(financingApplications.createdAt));
+    } else {
+      applications = await db
+        .select()
+        .from(financingApplications)
+        .orderBy(desc(financingApplications.createdAt));
     }
-    return await db
-      .select()
-      .from(financingApplications)
-      .orderBy(desc(financingApplications.createdAt));
+    
+    return applications.map(app => this.decryptFinancingApplication(app));
   }
 
   // Audit logging methods
