@@ -15,11 +15,15 @@ This is a comprehensive **multi-tenant** used car dealership website system for 
 ✓ **Database Integration** - Full PostgreSQL setup with multi-tenant schema
 ✓ **Railway Deployment Ready** - Configured for unified frontend/backend deployment on Railway
 ✓ **Security Hardening** - Rate limiting, bcrypt password hashing, session validation, CSRF protection, MIME validation
+✓ **Session Security** - Session regeneration on login prevents session fixation attacks
+✓ **Tenant Isolation** - All admin endpoints enforce session-based dealership scoping (no client-supplied overrides)
+✓ **Field-Level Encryption** - Sensitive financing data (income, credit score) encrypted with AES-256-GCM
 ✓ **Audit Logging** - Compliance-grade tracking of all admin actions with before/after snapshots
 ✓ **File Upload Security** - Image-only uploads (jpeg/png/webp/gif), 10MB max, server-side validation
 ✓ **Structured Logging** - Centralized logger with JSON output for production, integration-ready for monitoring services
 ✓ **CI/CD Pipeline** - GitHub Actions workflow with type checking, linting, testing, and build verification
 ✓ **Enhanced UX** - Image lightbox with zoom, form validation with inline errors, bulk admin actions
+✓ **Google Drive Integration** - Per-dealership folder sync for vehicle images via service account
 
 ## Multi-Tenant Architecture (December 2025)
 - **Dealerships Table**: Central registry with id, name, slug, domain, contact info, full branding (logo, primaryColor, secondaryColor, accentColor, heroImage, tagline, favicon, socialLinks, seoMeta, businessHours)
@@ -100,13 +104,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Authentication & Security
 - **bcrypt**: Password hashing for admin authentication with database-stored hashed passwords
-- **express-session**: Session management for maintaining admin login state
+- **express-session**: Session management for maintaining admin login state with session regeneration on login
 - **express-rate-limit**: Rate limiting protection:
   - Auth endpoints: 5 attempts per 15 minutes
   - Form submissions: 10 per hour per IP
   - General API: 100 requests per minute
 - **Trust Proxy**: Configured for Railway/reverse proxy deployment
 - **Session Secret Validation**: Required SESSION_SECRET in production environment
+- **Tenant Isolation**: All admin endpoints verify session dealership - prevents cross-tenant access
+- **Field Encryption**: AES-256-GCM encryption for sensitive financing data (monthlyIncome, creditScore)
+
+## Google Drive Integration
+- **Service Account**: manumation@kobllm.iam.gserviceaccount.com
+- **Per-Dealership Folders**: Each dealership can connect its own Google Drive folder
+- **Setup**: Admin → Dealerships → Edit → Google Drive Image Folder section
+- **Requirement**: Share folder with service account email before connecting
+- **Credentials**: Stored in GOOGLE_SERVICE_ACCOUNT_JSON environment variable
 
 ## Development Tools
 - **Replit Integration**: Development environment optimization with cartographer and error modal plugins

@@ -155,11 +155,8 @@ function AdminSubmissions() {
               <h1 className="text-xl font-semibold text-gray-900">Submissions Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/admin/vehicles">
-                <Button variant="outline">Manage Vehicles</Button>
-              </Link>
               <Link href="/admin">
-                <Button variant="outline">Admin Home</Button>
+                <Button variant="outline">Back to Admin</Button>
               </Link>
               <Button
                 onClick={() => window.location.reload()}
