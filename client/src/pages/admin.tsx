@@ -1226,18 +1226,21 @@ function DealershipForm({
     googleDriveFolderId: (dealership as any)?.googleDriveFolderId || '',
   });
   
-  const [driveFolder, setDriveFolder] = useState('');
+  const existingFolderId = (dealership as any)?.googleDriveFolderId || '';
+  const [driveFolder, setDriveFolder] = useState(existingFolderId);
   const [driveFolderValidating, setDriveFolderValidating] = useState(false);
-  const [driveFolderValid, setDriveFolderValid] = useState<{ name: string; id: string } | null>(null);
+  const [driveFolderValid, setDriveFolderValid] = useState<{ name: string; id: string } | null>(
+    existingFolderId ? { name: 'Connected Folder', id: existingFolderId } : null
+  );
   const [driveImages, setDriveImages] = useState<Array<{ id: string; name: string; url: string; thumbnailUrl: string }>>([]);
   const [loadingDriveImages, setLoadingDriveImages] = useState(false);
 
   // Load images if folder is already configured
   useEffect(() => {
-    if (formData.googleDriveFolderId) {
-      loadDriveImages(formData.googleDriveFolderId);
+    if (existingFolderId) {
+      loadDriveImages(existingFolderId);
     }
-  }, []);
+  }, [existingFolderId]);
 
   const validateDriveFolder = async () => {
     if (!driveFolder) return;

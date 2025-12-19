@@ -582,13 +582,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update the dealership with the folder ID if provided
+      const now = new Date().toISOString();
       if (folderId && folderId !== dealership.googleDriveFolderId) {
         await storage.updateDealership(id, { 
           googleDriveFolderId: folderId,
-          lastDriveSync: new Date()
-        });
+          lastDriveSync: now
+        } as any);
       } else {
-        await storage.updateDealership(id, { lastDriveSync: new Date() });
+        await storage.updateDealership(id, { lastDriveSync: now } as any);
       }
 
       // Get images from the folder
