@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertVehicleSchema, insertInquirySchema, insertFinancingApplicationSchema, insertDealershipSchema, type Dealership } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { googleDriveService } from "./googleDrive";
 import { logger } from "./logger";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -499,6 +500,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       logger.error("Error selecting dealership", { error, path: '/api/admin/select-dealership' });
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Google Drive Integration Routes
+  app.get("/api/admin/google-drive/status", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const isConfigured = googleDriveService.isConfigured();
+      res.json({ 
+        configured: isConfigured,
+        serviceAccount: isConfigured ? 'manumation@kobllm.iam.gserviceaccount.com' : null
+      });
+    } catch (error) {
+      logger.error("Error checking Google Drive status", { error });
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/google-drive/validate-folder", requireAuthWithCsrf, async (req: Request, res: Response) => {
+    try {
+      const { folderUrl } = req.body;
+      
+      if (!folderUrl) {
+        return res.status(400).json({ error: "Folder URL is required" });
+      }
+
+      const folderId = googleDriveService.extractFolderIdFromUrl(folderUrl);
+      if (!folderId) {
+        return res.status(400).json({ error: "Invalid Google Drive folder URL" });
+      }
+
+      const folderInfo = await googleDriveService.getFolderInfo(folderId);
+      if (!folderInfo) {
+        return res.status(404).json({ 
+          error: "Folder not found. Make sure it's shared with: manumation@kobllm.iam.gserviceaccount.com" 
+        });
+      }
+
+      res.json({ 
+        valid: true, 
+        folderId: folderInfo.id, 
+        folderName: folderInfo.name 
+      });
+    } catch (error: any) {
+      logger.error("Error validating Google Drive folder", { error });
+      res.status(400).json({ error: error.message || "Failed to validate folder" });
+    }
+  });
+
+  app.get("/api/admin/google-drive/folder/:folderId/images", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { folderId } = req.params;
+      
+      if (!folderId) {
+        return res.status(400).json({ error: "Folder ID is required" });
+      }
+
+      const images = await googleDriveService.listImagesInFolder(folderId);
+      res.json({ images, count: images.length });
+    } catch (error: any) {
+      logger.error("Error listing Google Drive images", { error, folderId: req.params.folderId });
+      res.status(400).json({ error: error.message || "Failed to list images" });
+    }
+  });
+
+  app.post("/api/admin/dealerships/:id/sync-drive", requireAuthWithCsrf, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { folderId } = req.body;
+
+      // Get dealership
+      const dealership = await storage.getDealershipById(id);
+      if (!dealership) {
+        return res.status(404).json({ error: "Dealership not found" });
+      }
+
+      // Use provided folderId or the one stored in dealership
+      const activeFolderId = folderId || dealership.googleDriveFolderId;
+      if (!activeFolderId) {
+        return res.status(400).json({ error: "No Google Drive folder configured for this dealership" });
+      }
+
+      // Update the dealership with the folder ID if provided
+      if (folderId && folderId !== dealership.googleDriveFolderId) {
+        await storage.updateDealership(id, { 
+          googleDriveFolderId: folderId,
+          lastDriveSync: new Date()
+        });
+      } else {
+        await storage.updateDealership(id, { lastDriveSync: new Date() });
+      }
+
+      // Get images from the folder
+      const images = await googleDriveService.listImagesInFolder(activeFolderId);
+
+      res.json({ 
+        success: true, 
+        folderId: activeFolderId,
+        imagesFound: images.length,
+        images: images,
+        message: `Found ${images.length} images in Google Drive folder`
+      });
+    } catch (error: any) {
+      logger.error("Error syncing Google Drive for dealership", { error, dealershipId: req.params.id });
+      res.status(400).json({ error: error.message || "Failed to sync with Google Drive" });
     }
   });
 
