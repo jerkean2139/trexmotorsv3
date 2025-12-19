@@ -24,6 +24,8 @@ export const dealerships = pgTable("dealerships", {
   socialLinks: jsonb("social_links").$type<{ facebook?: string; instagram?: string; twitter?: string; youtube?: string }>(),
   seoMeta: jsonb("seo_meta").$type<{ title?: string; description?: string; keywords?: string[] }>(),
   businessHours: jsonb("business_hours").$type<{ [key: string]: { open: string; close: string } | null }>(),
+  googleDriveFolderId: varchar("google_drive_folder_id", { length: 100 }),
+  lastDriveSync: timestamp("last_drive_sync"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
