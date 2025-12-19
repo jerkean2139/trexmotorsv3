@@ -328,6 +328,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Verify bcrypt hashed password from database
         const validPassword = await bcrypt.compare(password, user.password);
         if (validPassword) {
+          // SECURITY: Regenerate session ID on login to prevent session fixation attacks
+          const regenerateSession = () => new Promise<void>((resolve, reject) => {
+            req.session.regenerate((err) => {
+              if (err) reject(err);
+              else resolve();
+            });
+          });
+          await regenerateSession();
+          
           req.session.isAuthenticated = true;
           req.session.userId = user.id;
           req.session.csrfToken = generateCsrfToken();
@@ -344,6 +353,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!adminUser) {
           adminUser = await storage.createUser({ username: 'admin', password: hashedPassword });
         }
+        
+        // SECURITY: Regenerate session ID on login to prevent session fixation attacks
+        const regenerateSession = () => new Promise<void>((resolve, reject) => {
+          req.session.regenerate((err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        await regenerateSession();
+        
         req.session.isAuthenticated = true;
         req.session.userId = adminUser.id;
         req.session.csrfToken = generateCsrfToken();
@@ -465,13 +484,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/dealerships/:id", requireAuth, async (req, res) => {
+  app.put("/api/dealerships/:id", requireAuthWithCsrf, async (req: Request, res: Response) => {
     try {
+      // SECURITY: Verify admin is updating their selected dealership only
+      const selectedDealershipId = req.session.selectedDealershipId;
+      if (!selectedDealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
+      
+      if (req.params.id !== selectedDealershipId) {
+        return res.status(403).json({ error: "Not authorized to modify this dealership. Switch to this dealership first." });
+      }
+      
       const dealershipData = insertDealershipSchema.partial().parse(req.body);
       const dealership = await storage.updateDealership(req.params.id, dealershipData);
       if (!dealership) {
         return res.status(404).json({ error: "Dealership not found" });
       }
+      
+      // Audit log: dealership update
+      await storage.createAuditLog({
+        userId: req.session.userId!,
+        dealershipId: selectedDealershipId,
+        action: 'update',
+        entityType: 'dealership',
+        entityId: req.params.id,
+        details: { changes: dealershipData },
+        ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || null,
+        userAgent: req.headers['user-agent'] || null,
+      });
+      
       res.json(dealership);
     } catch (error) {
       logger.error("Error updating dealership", { error, path: '/api/dealerships/:id' });
@@ -568,6 +610,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { folderId } = req.body;
+
+      // SECURITY: Verify admin is syncing their selected dealership only
+      const selectedDealershipId = req.session.selectedDealershipId;
+      if (!selectedDealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
+      
+      if (id !== selectedDealershipId) {
+        return res.status(403).json({ error: "Not authorized to sync this dealership. Switch to this dealership first." });
+      }
 
       // Get dealership
       const dealership = await storage.getDealershipById(id);
@@ -899,7 +951,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/inquiries", requireAuth, async (req, res) => {
     try {
-      const dealershipId = req.session.selectedDealershipId || req.query.dealershipId as string || null;
+      // SECURITY: Strictly use session dealership - never trust query params for tenant data
+      const dealershipId = req.session.selectedDealershipId;
+      if (!dealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
       const inquiries = await storage.getInquiries(dealershipId);
       res.json(inquiries);
     } catch (error) {
@@ -939,7 +995,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/financing-applications", requireAuth, async (req, res) => {
     try {
-      const dealershipId = req.session.selectedDealershipId || req.query.dealershipId as string || null;
+      // SECURITY: Strictly use session dealership - never trust query params for sensitive financial data
+      const dealershipId = req.session.selectedDealershipId;
+      if (!dealershipId) {
+        return res.status(400).json({ error: "No dealership selected. Please select a dealership first." });
+      }
       const applications = await storage.getFinancingApplications(dealershipId);
       res.json(applications);
     } catch (error) {
