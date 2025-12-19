@@ -1,0 +1,48 @@
+~/workspace$ git filter-branch --force --index-filter \
+  "git rm --cached --ignore-unmatch attached_assets/kobllm-0040c95754e8_1766118874150.json" \
+  --prune-empty --tag-name-filter cat -- --all
+
+git push --force origin main
+WARNING: git-filter-branch has a glut of gotchas generating mangled history
+     rewrites.  Hit Ctrl-C before proceeding to abort, then use an
+     alternative filtering tool such as 'git filter-repo'
+     (https://github.com/newren/git-filter-repo/) instead.  See the
+     filter-branch manual page for more details; to squelch this warning,
+     set FILTER_BRANCH_SQUELCH_WARNING=1.
+Proceeding with filter-branch...
+
+Cannot rewrite branches: You have unstaged changes.
+Enumerating objects: 130, done.
+Counting objects: 100% (130/130), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (88/88), done.
+Writing objects: 100% (112/112), 926.65 KiB | 25.04 MiB/s, done.
+Total 112 (delta 49), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (49/49), completed with 12 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:     
+remote:       —— Google Cloud Service Account Credentials ——————————
+remote:        locations:
+remote:          - commit: 4495ab69f58baf3e62a1e63cf7d00dc1fc06623d
+remote:            path: attached_assets/kobllm-0040c95754e8_1766118874150.json:1
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/jerkean2139/trexmotorsv3/security/secret-scanning/unblock-secret/373EoCnPpD8RErZjFpyMkqlzjsJ
+remote:     
+remote: 
+remote: 
+To https://github.com/jerkean2139/trexmotorsv3.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/jerkean2139/trexmotorsv3.git'
+~/workspace$ 
